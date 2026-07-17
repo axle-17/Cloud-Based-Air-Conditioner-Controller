@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>ESP32 Relay Control Dashboard</title>
+  <title>ESP32 Relay + DHT22 Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -19,6 +19,13 @@
     h1 {
       margin-top: 30px;
       font-size: 1.8rem;
+    }
+    h3.section-label {
+      margin: 30px 0 -5px;
+      color: #555;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
     .relay-card {
       display: inline-block;
@@ -46,12 +53,45 @@
       background-color: blue;
       cursor: pointer;
       font-size: 16px;
-	  width: 90%;
+      width: 90%;
       transition: opacity 0.3s ease;
     }
     .relay-card button:hover {
       opacity: 0.8;
     }
+
+    /* Sensor cards (DHT22) */
+    .sensor-card {
+      display: inline-block;
+      background-color: white;
+      padding: 20px;
+      margin: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 220px;
+      vertical-align: top;
+      border-top: 4px solid #1e88e5;
+    }
+    .sensor-card h2 {
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+    .sensor-card .value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #1e88e5;
+      margin: 5px 0;
+    }
+    .sensor-card .unit {
+      font-size: 1rem;
+      color: #888;
+    }
+    .sensor-card .updated {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 8px;
+    }
+
     #allOffBtn, #logoutBtn {
       max-width: 300px;
       width: 90%;
@@ -118,7 +158,8 @@
     #loginForm button:hover {
       background-color: #1565c0;
     }
-    #dashboard .relay-container {
+    #dashboard .relay-container,
+    #dashboard .sensor-container {
       max-width: 960px;
       margin: 20px auto 0;
       display: flex;
@@ -127,7 +168,7 @@
     }
     /* Smaller devices */
     @media (max-width: 700px) {
-      .relay-card {
+      .relay-card, .sensor-card {
         width: 90%;
         margin: 10px auto;
         display: block;
@@ -146,7 +187,7 @@
 </head>
 <body>
 
-  <h1>ESP32 Relay Control Dashboard</h1>
+  <h1>ESP32 Relay + DHT22 Dashboard</h1>
 
   <!-- Login form -->
   <div id="loginForm">
@@ -157,6 +198,8 @@
 
   <!-- Dashboard -->
   <div id="dashboard">
+
+    <h3 class="section-label">Relays</h3>
     <div class="relay-container">
       <div class="relay-card">
         <h2>Relay 1</h2>
@@ -169,17 +212,20 @@
         <p>Status: <span id="status2">Loading...</span></p>
         <button id="btn2">Toggle</button>
       </div>
+    </div>
 
-      <div class="relay-card">
-        <h2>Relay 3</h2>
-        <p>Status: <span id="status3">Loading...</span></p>
-        <button id="btn3">Toggle</button>
+    <h3 class="section-label">DHT22 Sensor</h3>
+    <div class="sensor-container">
+      <div class="sensor-card">
+        <h2>Temperature</h2>
+        <div class="value"><span id="tempValue">--</span><span class="unit"> &deg;C</span></div>
+        <div class="updated">Updated: <span id="tempUpdated">--</span></div>
       </div>
 
-      <div class="relay-card">
-        <h2>Relay 4</h2>
-        <p>Status: <span id="status4">Loading...</span></p>
-        <button id="btn4">Toggle</button>
+      <div class="sensor-card">
+        <h2>Humidity</h2>
+        <div class="value"><span id="humValue">--</span><span class="unit"> %</span></div>
+        <div class="updated">Updated: <span id="humUpdated">--</span></div>
       </div>
     </div>
 
@@ -199,20 +245,21 @@
   <script>
     // Firebase config
     const firebaseConfig = {
-	  apiKey: "AIzaSyBFzQJ8a1AuHJABCDvg6UJMxjmD_XPPPOg",
-	  authDomain: "esp32-relay-control-01.firebaseapp.com",
-	  databaseURL: "https://esp32-relay1-control-02-default-rtdb.europe-west1.firebasedatabase.app",
-	  projectId: "esp32-relay-control-01",
-	  storageBucket: "esp32-relay-control-02.firebasestorage.app",
-	  messagingSenderId: "1057958003190",
-	  appId: "1:1057958003190:web:d4200d0e99b5ed880507d7"
-	};
+      apiKey: "AIzaSyB_lsKdY8yZYwXD-XTNV6b5kKIeOgP4x24",
+      authDomain: "esp32-relay-control-01-b96b1.firebaseapp.com",
+      databaseURL: "https://esp32-relay-control-01-b96b1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "esp32-relay-control-01-b96b1",
+      storageBucket: "esp32-relay-control-01-b96b1.firebasestorage.app",
+      messagingSenderId: "327054806162",
+      appId: "1:327054806162:web:6a7935f023ef8b5d2aaa4b",
+      measurementId: "G-R93LCX5MB1"
+    };
 
     firebase.initializeApp(firebaseConfig);
 
     // Predefined login credentials (can be replaced with your logic)
-    const allowedEmail = "abc@gmail.com";
-    const allowedPassword = "90009550";
+    const allowedEmail = "admin@gmail.com";
+    const allowedPassword = "admin123";
 
     const loginForm = document.getElementById("loginForm");
     const dashboard = document.getElementById("dashboard");
@@ -228,7 +275,7 @@
       }
 
       // Check hardcoded credentials first
-      if(email === allowedEmail && password === allowedPassword){
+      if (email === allowedEmail && password === allowedPassword) {
         // Sign in with Firebase
         firebase.auth().signInWithEmailAndPassword(email, password)
           .then(userCredential => {
@@ -236,6 +283,7 @@
             loginForm.style.display = "none";
             dashboard.style.display = "block";
             startRelayControl();
+            startSensorDisplay();
           })
           .catch(error => {
             alert("Firebase login failed: " + error.message);
@@ -245,14 +293,18 @@
       }
     });
 
+    function formatTime() {
+      const now = new Date();
+      return now.toLocaleTimeString();
+    }
+
     function startRelayControl() {
       const db = firebase.database();
 
+      // Only relay1 and relay2 exist in the ESP32 firmware
       const relays = [
         { id: 1, path: "relay1" },
         { id: 2, path: "relay2" },
-        { id: 3, path: "relay3" },
-        { id: 4, path: "relay4" },
       ];
 
       relays.forEach(relay => {
@@ -278,6 +330,26 @@
           db.ref("/" + relay.path).set(false);
         });
       };
+    }
+
+    function startSensorDisplay() {
+      const db = firebase.database();
+
+      // Temperature -> /temperature (set by dht.readTemperature() in the firmware)
+      db.ref("/temperature").on("value", (snapshot) => {
+        const val = snapshot.val();
+        document.getElementById("tempValue").innerText =
+          (val === null || val === undefined) ? "--" : Number(val).toFixed(1);
+        document.getElementById("tempUpdated").innerText = formatTime();
+      });
+
+      // Humidity -> /humidity (set by dht.readHumidity() in the firmware)
+      db.ref("/humidity").on("value", (snapshot) => {
+        const val = snapshot.val();
+        document.getElementById("humValue").innerText =
+          (val === null || val === undefined) ? "--" : Number(val).toFixed(1);
+        document.getElementById("humUpdated").innerText = formatTime();
+      });
     }
 
     document.getElementById("logoutBtn").onclick = () => {
