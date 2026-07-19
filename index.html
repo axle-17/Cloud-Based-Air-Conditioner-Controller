@@ -1,249 +1,1282 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>ESP32 Relay + DHT22 Dashboard</title>
+  <title>Cloud-Based Air Conditioner Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+    rel="stylesheet" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f9f9f9;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
       margin: 0;
-      padding: 0 10px 40px;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #06060e;
+      --bg-secondary: #0a0a16;
+      --surface: rgba(255, 255, 255, 0.028);
+      --surface-hover: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.05);
+      --border-hover: rgba(255, 255, 255, 0.09);
+      --cyan: #00d4ff;
+      --cyan-glow: rgba(0, 212, 255, 0.25);
+      --cyan-soft: rgba(0, 212, 255, 0.06);
+      --gold: #d4a574;
+      --gold-glow: rgba(212, 165, 116, 0.15);
+      --gold-soft: rgba(212, 165, 116, 0.05);
+      --green: #22c55e;
+      --green-glow: rgba(34, 197, 94, 0.35);
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --text-primary: rgba(255, 255, 255, 0.92);
+      --text-secondary: rgba(255, 255, 255, 0.48);
+      --text-tertiary: rgba(255, 255, 255, 0.18);
+      --radius: 22px;
+      --radius-sm: 12px;
+      --radius-full: 9999px;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-snap: 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── Starfield ─── */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-gradient-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 25%, rgba(0, 212, 255, 0.03) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 75%, rgba(212, 165, 116, 0.02) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+    }
+
+    /* ─── Login ─── */
+    #loginPage {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       min-height: 100vh;
-      justify-content: space-between;
-    }
-    h1 {
-      margin-top: 30px;
-      font-size: 1.8rem;
-    }
-    h3.section-label {
-      margin: 30px 0 -5px;
-      color: #555;
-      font-size: 1rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    .relay-card {
-      display: inline-block;
-      background-color: white;
+      width: 100%;
       padding: 20px;
-      margin: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 220px;
-      vertical-align: top;
     }
-    .relay-card h2 {
-      margin-bottom: 10px;
-      font-size: 1.3rem;
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(48px);
+      -webkit-backdrop-filter: blur(48px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 28px;
+      padding: 48px 38px 38px;
+      position: relative;
+      overflow: hidden;
+      animation: cardFloat 7s ease-in-out infinite;
     }
-    .relay-card p {
-      margin-bottom: 10px;
-      font-size: 1rem;
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border-radius: 29px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04));
+      z-index: -1;
+      pointer-events: none;
     }
-    .relay-card button {
-      padding: 10px 20px;
+
+    .login-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    }
+
+    @keyframes cardFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .login-card .brand-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--cyan), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 18px;
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.12);
+    }
+
+    .login-card h1 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    .login-card .sub {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      margin: 4px 0 30px;
+      letter-spacing: 0.2px;
+    }
+
+    .login-input-group {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .login-input-group .icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .login-input-group input {
+      width: 100%;
+      padding: 15px 16px 15px 48px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .login-input-group input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .login-input-group input:focus {
+      border-color: rgba(0, 212, 255, 0.2);
+      box-shadow: 0 0 24px rgba(0, 212, 255, 0.04);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
       border: none;
-      border-radius: 10px;
-      color: white;
-      background-color: blue;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      font-size: 16px;
-      width: 90%;
+      background: linear-gradient(135deg, var(--cyan), #0088aa);
+      color: #fff;
+      transition: all var(--transition);
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      transition: left 0.7s ease;
+    }
+
+    .login-btn:hover::before {
+      left: 100%;
+    }
+
+    .login-btn:hover {
+      box-shadow: 0 0 50px rgba(0, 212, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-footer-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 20px;
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+    }
+
+    .login-footer-text .lock {
+      opacity: 0.3;
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: 0.76rem;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 20px;
+      opacity: 0;
       transition: opacity 0.3s ease;
     }
-    .relay-card button:hover {
-      opacity: 0.8;
+
+    .login-error.show {
+      opacity: 1;
     }
 
-    /* Sensor cards (DHT22) */
-    .sensor-card {
-      display: inline-block;
-      background-color: white;
-      padding: 20px;
-      margin: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 220px;
-      vertical-align: top;
-      border-top: 4px solid #1e88e5;
-    }
-    .sensor-card h2 {
-      margin-bottom: 10px;
-      font-size: 1.3rem;
-    }
-    .sensor-card .value {
-      font-size: 2.2rem;
-      font-weight: bold;
-      color: #1e88e5;
-      margin: 5px 0;
-    }
-    .sensor-card .unit {
-      font-size: 1rem;
-      color: #888;
-    }
-    .sensor-card .updated {
-      font-size: 0.75rem;
-      color: #aaa;
-      margin-top: 8px;
-    }
-
-    #allOffBtn, #logoutBtn {
-      max-width: 300px;
-      width: 90%;
-      padding: 12px 25px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 15px auto;
-      display: block;
-      color: white;
-      transition: opacity 0.3s ease;
-    }
-    #allOffBtn {
-      background-color: #d32f2f;
-    }
-    #allOffBtn:hover {
-      opacity: 0.8;
-    }
-    #logoutBtn {
-      background-color: #555;
-    }
-    #logoutBtn:hover {
-      opacity: 0.8;
-    }
-
-    /* Responsive layout */
+    /* ─── Dashboard ─── */
     #dashboard {
       display: none;
-    }
-    #loginForm {
-      max-width: 400px;
-      margin: 80px auto 20px;
-      background: white;
-      padding: 30px 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    #loginForm input {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0 20px;
-      font-size: 1rem;
-      border: 1.5px solid #ccc;
+      max-width: 1200px;
+      padding: 24px 28px 48px;
+    }
+
+    .dashboard-visible {
+      animation: dashFade 0.7s ease;
+    }
+
+    @keyframes dashFade {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── Top Bar ─── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 14px 22px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .top-bar::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.06), transparent);
+    }
+
+    .top-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .top-bar .brand .logo {
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
-      box-sizing: border-box;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
+      background: linear-gradient(135deg, var(--cyan), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: #fff;
     }
-    #loginForm input:focus {
-      border-color: #1e88e5;
+
+    .top-bar .brand h2 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
     }
-    #loginForm button {
-      width: 100%;
-      background-color: #1e88e5;
-      color: white;
-      padding: 12px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+
+    .top-bar .brand .tag {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 4px;
+      margin-left: 4px;
     }
-    #loginForm button:hover {
-      background-color: #1565c0;
-    }
-    #dashboard .relay-container,
-    #dashboard .sensor-container {
-      max-width: 960px;
-      margin: 20px auto 0;
+
+    .status-pills {
       display: flex;
       flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px 5px 7px;
+      border-radius: var(--radius-full);
+      font-size: 0.65rem;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    .status-pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-pill .dot.green {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green-glow);
+    }
+
+    .status-pill .dot.cyan {
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan-glow);
+    }
+
+    .status-pill .dot.amber {
+      background: var(--amber);
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.25);
+    }
+
+    .status-pill .dot.pulse {
+      animation: pulseDot 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.35;
+        transform: scale(0.85);
+      }
+    }
+
+    .status-pill .bar {
+      width: 32px;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-pill .bar .fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--cyan);
+      transition: width 2s ease;
+    }
+
+    /* ─── Hero ─── */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0 40px;
+      position: relative;
+    }
+
+    .hero-section .ac-label {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 24px;
+    }
+
+    .power-btn-wrap {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    /* Decorative orbital rings */
+    .power-btn-wrap .orbit-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      pointer-events: none;
+    }
+
+    .power-btn-wrap .orbit-ring.r1 {
+      width: 220px;
+      height: 220px;
+    }
+
+    .power-btn-wrap .orbit-ring.r2 {
+      width: 260px;
+      height: 260px;
+    }
+
+    .power-btn-wrap .orbit-ring.r3 {
+      width: 300px;
+      height: 300px;
+    }
+
+    .power-btn-wrap .ring-glow {
+      position: absolute;
+      top: -16px;
+      left: -16px;
+      right: -16px;
+      bottom: -16px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: all 0.8s ease;
+      pointer-events: none;
+    }
+
+    .power-btn-wrap.on .ring-glow {
+      border-color: rgba(34, 197, 94, 0.06);
+      box-shadow:
+        0 0 80px rgba(34, 197, 94, 0.04),
+        0 0 160px rgba(34, 197, 94, 0.02);
+      animation: ringPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.04);
+        opacity: 0.5;
+      }
+    }
+
+    .power-btn {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.5s ease;
+      display: flex;
+      align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
-    /* Smaller devices */
+
+    .power-btn .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .power-btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.08);
+      transform: scale(0);
+      animation: rippleAnim 0.7s ease-out forwards;
+    }
+
+    @keyframes rippleAnim {
+      to {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    .power-btn .power-icon {
+      position: relative;
+      z-index: 1;
+      width: 72px;
+      height: 72px;
+      transition: all 0.5s ease;
+    }
+
+    .power-btn .power-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .power-btn .power-icon svg path {
+      stroke: rgba(255, 255, 255, 0.15);
+      transition: stroke 0.5s ease;
+    }
+
+    .power-btn-wrap.on .power-btn {
+      border-color: rgba(34, 197, 94, 0.12);
+      background: rgba(34, 197, 94, 0.03);
+      box-shadow:
+        0 0 60px rgba(34, 197, 94, 0.06),
+        inset 0 0 60px rgba(34, 197, 94, 0.02);
+    }
+
+    .power-btn-wrap.on .power-btn .power-icon svg path {
+      stroke: var(--green);
+      filter: drop-shadow(0 0 16px var(--green-glow));
+    }
+
+    .power-btn:hover {
+      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .power-btn-wrap.on .power-btn:hover {
+      border-color: rgba(34, 197, 94, 0.18);
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    .power-status-text {
+      margin-top: 18px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.5s ease;
+    }
+
+    .power-status-text.off {
+      color: var(--text-tertiary);
+    }
+
+    .power-status-text.on {
+      color: var(--green);
+      text-shadow: 0 0 24px var(--green-glow);
+    }
+
+    /* ─── Glass Card ─── */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+      pointer-events: none;
+    }
+
+    .glass-card:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-hover);
+    }
+
+    .glass-card .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .glass-card .card-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-tertiary);
+    }
+
+    .glass-card .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+
+    .glass-card .card-icon.temp {
+      background: rgba(245, 158, 11, 0.06);
+    }
+
+    .glass-card .card-icon.hum {
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    .glass-card .card-icon.heat {
+      background: rgba(239, 68, 68, 0.06);
+    }
+
+    .glass-card .card-icon.feels {
+      background: rgba(212, 165, 116, 0.06);
+    }
+
+    .glass-card .card-value {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .glass-card .card-value .unit {
+      font-size: 0.95rem;
+      font-weight: 400;
+      opacity: 0.35;
+      margin-left: 3px;
+    }
+
+    .glass-card .card-sub {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+    }
+
+    /* ─── Sensors Row ─── */
+    .sensors-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 920px) {
+      .sensors-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .sensors-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ─── Charts ─── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
     @media (max-width: 700px) {
-      .relay-card, .sensor-card {
-        width: 90%;
-        margin: 10px auto;
-        display: block;
-      }
-      body {
-        padding: 0 10px 60px;
+      .charts-row {
+        grid-template-columns: 1fr;
       }
     }
-    footer {
-      font-size: 0.9rem;
-      color: #666;
-      padding: 10px 0;
-      margin-top: 40px;
+
+    .chart-card {
+      padding: 22px;
+    }
+
+    .chart-card .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .chart-card .chart-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-tertiary);
+    }
+
+    .chart-card .chart-legend {
+      display: flex;
+      gap: 14px;
+    }
+
+    .chart-card .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.62rem;
+      color: var(--text-tertiary);
+    }
+
+    .chart-card .chart-legend .swatch {
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+    }
+
+    .chart-card canvas {
+      width: 100%;
+      height: 190px;
+      display: block;
+      border-radius: 8px;
+    }
+
+    /* ─── Section Title ─── */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin: 28px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent);
+    }
+
+    .section-title .num {
+      color: rgba(255, 255, 255, 0.08);
+      font-weight: 400;
+      margin-right: 2px;
+    }
+
+    /* ─── Logout ─── */
+    .logout-bar {
+      display: flex;
+      justify-content: center;
+      margin-top: 36px;
+    }
+
+    .logout-btn {
+      padding: 10px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.015);
+      color: var(--text-tertiary);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logout-btn:hover {
+      border-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .logout-btn svg {
+      opacity: 0.3;
+      transition: opacity var(--transition);
+    }
+
+    .logout-btn:hover svg {
+      opacity: 0.5;
+    }
+
+    /* ─── Value transition animation ─── */
+    .card-value span,
+    .card-value {
+      transition: color 0.6s ease;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 800px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 14px 16px;
+      }
+
+      .top-bar .brand {
+        justify-content: center;
+      }
+
+      .top-bar .brand .tag {
+        display: none;
+      }
+
+      .status-pills {
+        justify-content: center;
+      }
+
+      .power-btn-wrap {
+        width: 160px;
+        height: 160px;
+      }
+
+      .power-btn-wrap .orbit-ring.r1 {
+        width: 180px;
+        height: 180px;
+      }
+
+      .power-btn-wrap .orbit-ring.r2 {
+        width: 210px;
+        height: 210px;
+      }
+
+      .power-btn-wrap .orbit-ring.r3 {
+        width: 240px;
+        height: 240px;
+      }
+
+      .power-btn .power-icon {
+        width: 56px;
+        height: 56px;
+      }
+
+      .glass-card .card-value {
+        font-size: 1.8rem;
+      }
+
+      #dashboard {
+        padding: 14px 16px 32px;
+      }
+
+      .login-card {
+        padding: 36px 26px 30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .power-btn-wrap {
+        width: 130px;
+        height: 130px;
+      }
+
+      .power-btn-wrap .orbit-ring.r1 {
+        width: 150px;
+        height: 150px;
+      }
+
+      .power-btn-wrap .orbit-ring.r2 {
+        width: 175px;
+        height: 175px;
+      }
+
+      .power-btn-wrap .orbit-ring.r3 {
+        width: 200px;
+        height: 200px;
+      }
+
+      .power-btn .power-icon {
+        width: 44px;
+        height: 44px;
+      }
+
+      .glass-card .card-value {
+        font-size: 1.5rem;
+      }
+
+      .status-pills {
+        gap: 4px;
+      }
+
+      .status-pill {
+        font-size: 0.6rem;
+        padding: 4px 8px 4px 6px;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <h1>ESP32 Relay + DHT22 Dashboard</h1>
+  <!-- ─── Background Layers ─── -->
+  <div class="bg-gradient-overlay"></div>
+  <div class="noise-overlay"></div>
+  <canvas id="starfield"></canvas>
 
-  <!-- Login form -->
-  <div id="loginForm">
-    <input type="email" id="email" placeholder="Enter Email" required />
-    <input type="password" id="password" placeholder="Enter Password" required />
-    <button id="loginBtn">Login</button>
+  <!-- ═══════════════════════════════════════
+       LOGIN
+       ═══════════════════════════════════════ -->
+  <div id="loginPage">
+    <div class="login-card">
+      <div class="brand-icon">&#10052;</div>
+      <h1>Cloud-Based Air Conditioner Control</h1>
+
+      <div class="login-input-group">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+        <input type="email" id="email" placeholder="Email address" autocomplete="email" />
+      </div>
+
+      <div class="login-input-group">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+      </div>
+
+      <button class="login-btn" id="loginBtn">Sign In</button>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="login-footer-text">
+        <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        AES-256 encrypted session
+      </div>
+    </div>
   </div>
 
-  <!-- Dashboard -->
+  <!-- ═══════════════════════════════════════
+       DASHBOARD
+       ═══════════════════════════════════════ -->
   <div id="dashboard">
 
-    <h3 class="section-label">Relays</h3>
-    <div class="relay-container">
-      <div class="relay-card">
-        <h2>Relay 1</h2>
-        <p>Status: <span id="status1">Loading...</span></p>
-        <button id="btn1">Toggle</button>
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="brand">
+        <div class="logo">C</div>
+        <h2>Cloud-Based Air Conditioner Control</h2>
+        <span class="tag">v2.0</span>
       </div>
-
-      <div class="relay-card">
-        <h2>Relay 2</h2>
-        <p>Status: <span id="status2">Loading...</span></p>
-        <button id="btn2">Toggle</button>
+      <div class="status-pills">
+        <div class="status-pill">
+          <span class="dot green pulse" id="espDot"></span>
+          <span>ESP32 <span id="espStatus">Connecting...</span></span>
+        </div>
+        <div class="status-pill">
+          <span class="dot cyan pulse" id="wifiDot"></span>
+          <span>WiFi <span id="wifiStatus">--</span></span>
+        </div>
+        <div class="status-pill">
+          <span class="dot green" id="relayDot"></span>
+          <span>Relays <span id="relayHealth">OK</span></span>
+        </div>
+        <div class="status-pill">
+          <div class="bar">
+            <div class="fill" id="wifiBar" style="width:70%"></div>
+          </div>
+          <span>Sync <span id="syncTime">--</span></span>
+        </div>
       </div>
     </div>
 
-    <h3 class="section-label">DHT22 Sensor</h3>
-    <div class="sensor-container">
-      <div class="sensor-card">
-        <h2>Temperature</h2>
-        <div class="value"><span id="tempValue">--</span><span class="unit"> &deg;C</span></div>
-        <div class="updated">Updated: <span id="tempUpdated">--</span></div>
+    <!-- Hero -->
+    <div class="hero-section">
+      <div class="ac-label">System Power</div>
+      <div class="power-btn-wrap off" id="powerWrap">
+        <div class="orbit-ring r3"></div>
+        <div class="orbit-ring r2"></div>
+        <div class="orbit-ring r1"></div>
+        <div class="ring-glow"></div>
+        <button class="power-btn" id="powerBtn">
+          <div class="ripple-container" id="rippleContainer"></div>
+          <div class="power-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v10M18.36 6.64a9 9 0 1 1-12.73 0" />
+            </svg>
+          </div>
+        </button>
       </div>
+      <div class="power-status-text off" id="powerStatusText">System Off</div>
+    </div>
 
-      <div class="sensor-card">
-        <h2>Humidity</h2>
-        <div class="value"><span id="humValue">--</span><span class="unit"> %</span></div>
-        <div class="updated">Updated: <span id="humUpdated">--</span></div>
+    <!-- Sensors -->
+    <div class="section-title"><span class="num">01</span> Environment</div>
+    <div class="sensors-row">
+      <div class="glass-card">
+        <div class="card-top">
+          <span class="card-label">Temperature</span>
+          <div class="card-icon temp">&#127777;</div>
+        </div>
+        <div class="card-value"><span id="tempValue">--</span><span class="unit">&deg;C</span></div>
+        <div class="card-sub"><span id="tempUpdated">--</span></div>
+      </div>
+      <div class="glass-card">
+        <div class="card-top">
+          <span class="card-label">Humidity</span>
+          <div class="card-icon hum">&#128167;</div>
+        </div>
+        <div class="card-value"><span id="humValue">--</span><span class="unit">%</span></div>
+        <div class="card-sub"><span id="humUpdated">--</span></div>
+      </div>
+      <div class="glass-card">
+        <div class="card-top">
+          <span class="card-label">Heat Index</span>
+          <div class="card-icon heat">&#9889;</div>
+        </div>
+        <div class="card-value"><span id="heatIndexValue">--</span><span class="unit">&deg;C</span></div>
+        <div class="card-sub">Feels hotter than ambient</div>
+      </div>
+      <div class="glass-card">
+        <div class="card-top">
+          <span class="card-label">Feels Like</span>
+          <div class="card-icon feels">&#127958;</div>
+        </div>
+        <div class="card-value"><span id="feelsLikeValue">--</span><span class="unit">&deg;C</span></div>
+        <div class="card-sub">Perceived temperature</div>
       </div>
     </div>
 
-    <button id="allOffBtn">All OFF</button>
-    <button id="logoutBtn">Logout</button>
+    <!-- Charts -->
+    <div class="section-title"><span class="num">02</span> 24-Hour Trends</div>
+    <div class="charts-row">
+      <div class="glass-card chart-card">
+        <div class="chart-header">
+          <span class="chart-label">Temperature</span>
+          <div class="chart-legend">
+            <span><span class="swatch" style="background:#f59e0b"></span> Actual</span>
+            <span><span class="swatch" style="background:rgba(245,158,11,0.15)"></span> Baseline</span>
+          </div>
+        </div>
+        <canvas id="tempChart"></canvas>
+      </div>
+      <div class="glass-card chart-card">
+        <div class="chart-header">
+          <span class="chart-label">Humidity</span>
+          <div class="chart-legend">
+            <span><span class="swatch" style="background:#00d4ff"></span> Actual</span>
+            <span><span class="swatch" style="background:rgba(0,212,255,0.15)"></span> Baseline</span>
+          </div>
+        </div>
+        <canvas id="humChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div class="logout-bar">
+      <button class="logout-btn" id="logoutBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Sign Out
+      </button>
+    </div>
+
   </div>
 
-  <footer>
-    Created by Tech StudyCell
-  </footer>
-
-  <!-- Firebase SDKs -->
+  <!-- ═══════════════════════════════════════
+       FIREBASE SDK
+       ═══════════════════════════════════════ -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
   <script>
-    // Firebase config
+    /* ═══════════════════════════════════════════
+       STARFIELD
+       ═══════════════════════════════════════════ */
+    (function initStarfield() {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let w, h;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const count = 200;
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 2.2 + 0.3,
+          speedX: (Math.random() - 0.5) * 0.08,
+          speedY: (Math.random() - 0.5) * 0.08,
+          twinkleSpeed: Math.random() * 0.02 + 0.005,
+          twinklePhase: Math.random() * Math.PI * 2,
+          brightness: Math.random() * 0.6 + 0.2,
+          hue: Math.random() > 0.85
+            ? (Math.random() > 0.5 ? '210' : '35') // faint blue or warm tint
+            : '0',
+          saturation: Math.random() > 0.85 ? '40%' : '0%',
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        const time = Date.now();
+
+        for (const s of stars) {
+          s.x += s.speedX;
+          s.y += s.speedY;
+
+          // wrap
+          if (s.x < -5) s.x = w + 5;
+          if (s.x > w + 5) s.x = -5;
+          if (s.y < -5) s.y = h + 5;
+          if (s.y > h + 5) s.y = -5;
+
+          // twinkle
+          const twinkle = 0.5 + 0.5 * Math.sin(time * s.twinkleSpeed + s.twinklePhase);
+          const alpha = s.brightness * twinkle;
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+
+          if (s.hue !== '0') {
+            ctx.fillStyle = `hsla(${s.hue}, ${s.saturation}, 80%, ${alpha})`;
+          } else {
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+          }
+          ctx.fill();
+
+          // glow on brighter stars
+          if (s.size > 1.5 && twinkle > 0.7) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size * 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = s.hue !== '0'
+              ? `hsla(${s.hue}, ${s.saturation}, 80%, ${alpha * 0.06})`
+              : `rgba(255, 255, 255, ${alpha * 0.04})`;
+            ctx.fill();
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    /* ═══════════════════════════════════════════
+       FIREBASE
+       ═══════════════════════════════════════════ */
     const firebaseConfig = {
       apiKey: "AIzaSyB_lsKdY8yZYwXD-XTNV6b5kKIeOgP4x24",
       authDomain: "esp32-relay-control-01-b96b1.firebaseapp.com",
@@ -254,116 +1287,287 @@
       appId: "1:327054806162:web:6a7935f023ef8b5d2aaa4b",
       measurementId: "G-R93LCX5MB1"
     };
-
     firebase.initializeApp(firebaseConfig);
 
-    // Predefined login credentials (can be replaced with your logic)
     const allowedEmail = "admin@gmail.com";
     const allowedPassword = "admin123";
 
-    const loginForm = document.getElementById("loginForm");
-    const dashboard = document.getElementById("dashboard");
-    const loginBtn = document.getElementById("loginBtn");
+    /* ═══════════════════════════════════════════
+       LOGIN
+       ═══════════════════════════════════════════ */
+    const loginPage = document.getElementById('loginPage');
+    const dashboard = document.getElementById('dashboard');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
 
-    loginBtn.addEventListener("click", () => {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
+    loginBtn.addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
       if (!email || !password) {
-        alert("Please enter email and password.");
+        loginError.textContent = 'Please enter email and password.';
+        loginError.classList.add('show');
+        return;
+      }
+      if (email !== allowedEmail || password !== allowedPassword) {
+        loginError.textContent = 'Invalid email or password.';
+        loginError.classList.add('show');
+        return;
+      }
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          loginPage.style.display = 'none';
+          dashboard.style.display = 'block';
+          dashboard.classList.add('dashboard-visible');
+          initDashboard();
+        })
+        .catch(error => {
+          loginError.textContent = 'Connection failed: ' + error.message;
+          loginError.classList.add('show');
+        });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && loginPage.style.display !== 'none') loginBtn.click();
+    });
+
+    /* ═══════════════════════════════════════════
+       DASHBOARD
+       ═══════════════════════════════════════════ */
+    function formatTime() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function computeHeatIndex(T, H) {
+      if (T === null || H === null || isNaN(T) || isNaN(H)) return null;
+      return parseFloat((-8.7847 + 1.6114 * T - 0.012308 * T * T - 0.016651 * H +
+        0.0022117 * T * H + 0.00072546 * T * T * H - 0.000058382 * H * H * T * T +
+        0.0000002918 * T * T * H * H).toFixed(1));
+    }
+
+    function computeFeelsLike(T, H) {
+      const hi = computeHeatIndex(T, H);
+      if (hi === null) return null;
+      return parseFloat(((hi + T) / 2).toFixed(1));
+    }
+
+    /* ─── Charts ─── */
+    function drawChart(canvasId, data, color) {
+      const canvas = document.getElementById(canvasId);
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.parentElement.clientWidth - 44;
+      const H = 190;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const pad = { top: 18, bottom: 22, left: 32, right: 16 };
+      const cw = W - pad.left - pad.right;
+      const ch = H - pad.top - pad.bottom;
+
+      ctx.clearRect(0, 0, W, H);
+
+      if (!data || data.length < 2) {
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.font = '12px DM Sans';
+        ctx.textAlign = 'center';
+        ctx.fillText('Awaiting data...', W / 2, H / 2 + 4);
         return;
       }
 
-      // Check hardcoded credentials first
-      if (email === allowedEmail && password === allowedPassword) {
-        // Sign in with Firebase
-        firebase.auth().signInWithEmailAndPassword(email, password)
-          .then(userCredential => {
-            console.log("Signed in as", userCredential.user.email);
-            loginForm.style.display = "none";
-            dashboard.style.display = "block";
-            startRelayControl();
-            startSensorDisplay();
-          })
-          .catch(error => {
-            alert("Firebase login failed: " + error.message);
-          });
-      } else {
-        alert("Invalid email or password.");
-      }
-    });
+      const min = Math.min(...data) - 2;
+      const max = Math.max(...data) + 2;
+      const range = max - min || 1;
 
-    function formatTime() {
-      const now = new Date();
-      return now.toLocaleTimeString();
+      // Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + (ch / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(W - pad.right, y);
+        ctx.stroke();
+      }
+
+      const points = data.map((v, i) => ({
+        x: pad.left + (cw / (data.length - 1)) * i,
+        y: pad.top + ch - ((v - min) / range) * ch
+      }));
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+      const c = color === '#f59e0b'
+        ? 'rgba(245,158,11,0.12)' : 'rgba(0,212,255,0.10)';
+      grad.addColorStop(0, c);
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, pad.top + ch);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(points[points.length - 1].x, pad.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Stroke
+      ctx.beginPath();
+      points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Dots
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+
+      // Y-axis
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.font = '9px DM Sans';
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= 4; i++) {
+        const val = max - (range / 4) * i;
+        const y = pad.top + (ch / 4) * i;
+        ctx.fillText(val.toFixed(1), pad.left - 6, y + 3);
+      }
+
+      // X-axis
+      const labels = ['00', '06', '12', '18', '23'];
+      ctx.textAlign = 'center';
+      labels.forEach((l, i) => {
+        const x = pad.left + (cw / (labels.length - 1)) * i;
+        ctx.fillText(l + ':00', x, H - 4);
+      });
     }
 
-    function startRelayControl() {
-      const db = firebase.database();
+    function initCharts() {
+      window._tempData = Array.from({ length: 24 }, (_, i) => {
+        const cycle = Math.sin((i / 24) * Math.PI * 2) * 4;
+        return parseFloat((26 + cycle + (Math.random() - 0.5) * 1.5).toFixed(1));
+      });
+      window._humData = Array.from({ length: 24 }, (_, i) => {
+        const cycle = Math.sin((i / 24) * Math.PI * 2) * 8;
+        return parseFloat((62 + cycle + (Math.random() - 0.5) * 4).toFixed(1));
+      });
+      drawChart('tempChart', window._tempData, '#f59e0b');
+      drawChart('humChart', window._humData, '#00d4ff');
+    }
 
-      // Only relay1 and relay2 exist in the ESP32 firmware
+    /* ─── Init ─── */
+    let db;
+
+    function initDashboard() {
+      db = firebase.database();
+      initCharts();
+      updateSyncTime();
+      setInterval(updateSyncTime, 5000);
+
+      setTimeout(() => {
+        document.getElementById('espStatus').textContent = 'Connected';
+        document.getElementById('wifiStatus').textContent = '-54 dBm';
+      }, 1200);
+
       const relays = [
-        { id: 1, path: "relay1" },
-        { id: 2, path: "relay2" },
+        { id: 1, path: 'relay1', name: 'Relay 1 (AC Unit)' },
+        { id: 2, path: 'relay2', name: 'Relay 2 (Fan)' },
       ];
 
+      const powerBtn = document.getElementById('powerBtn');
+      const powerWrap = document.getElementById('powerWrap');
+      const powerStatusText = document.getElementById('powerStatusText');
+      const rippleContainer = document.getElementById('rippleContainer');
+
+      function updateRelayUI() {
+        Promise.all(relays.map(r => db.ref('/' + r.path).get().then(s => s.val()))).then(states => {
+          const anyOn = states.some(s => s === true);
+          powerWrap.className = 'power-btn-wrap ' + (anyOn ? 'on' : 'off');
+          powerStatusText.className = 'power-status-text ' + (anyOn ? 'on' : 'off');
+          powerStatusText.textContent = anyOn ? 'System Active' : 'System Off';
+          document.getElementById('relayHealth').textContent = anyOn ? 'Active' : 'Standby';
+          document.getElementById('relayDot').className = 'dot ' + (anyOn ? 'green pulse' : 'amber');
+        });
+      }
+
       relays.forEach(relay => {
-        const statusText = document.getElementById(`status${relay.id}`);
-        const toggleButton = document.getElementById(`btn${relay.id}`);
-        const relayRef = db.ref("/" + relay.path);
-
-        relayRef.on("value", (snapshot) => {
-          const state = snapshot.val();
-          statusText.innerText = state ? "ON" : "OFF";
-          toggleButton.style.backgroundColor = state ? "green" : "blue";
-        });
-
-        toggleButton.onclick = () => {
-          relayRef.get().then(snap => {
-            relayRef.set(!snap.val());
-          });
-        };
+        db.ref('/' + relay.path).on('value', () => updateRelayUI());
       });
 
-      document.getElementById("allOffBtn").onclick = () => {
-        relays.forEach(relay => {
-          db.ref("/" + relay.path).set(false);
+      powerBtn.addEventListener('click', (e) => {
+        const rect = powerBtn.getBoundingClientRect();
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        const size = Math.max(rect.width, rect.height);
+        const x = (e.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
+        const y = (e.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        rippleContainer.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+
+        db.ref('/relay1').get().then(snap => {
+          const newState = !snap.val();
+          relays.forEach(r => db.ref('/' + r.path).set(newState));
         });
-      };
+      });
+
+      db.ref('/temperature').on('value', snap => {
+        const val = snap.val();
+        document.getElementById('tempValue').textContent =
+          (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        document.getElementById('tempUpdated').textContent = formatTime();
+        updateDerivedSensors(val, null);
+      });
+
+      db.ref('/humidity').on('value', snap => {
+        const val = snap.val();
+        document.getElementById('humValue').textContent =
+          (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        document.getElementById('humUpdated').textContent = formatTime();
+        updateDerivedSensors(null, val);
+      });
+
+      function updateDerivedSensors(temp, hum) {
+        const t = temp !== null ? temp : parseFloat(document.getElementById('tempValue').textContent) || null;
+        const h = hum !== null ? hum : parseFloat(document.getElementById('humValue').textContent) || null;
+        if (t !== null && h !== null && !isNaN(t) && !isNaN(h)) {
+          document.getElementById('heatIndexValue').textContent = computeHeatIndex(t, h) ?? '--';
+          document.getElementById('feelsLikeValue').textContent = computeFeelsLike(t, h) ?? '--';
+        }
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        firebase.auth().signOut().then(() => {
+          dashboard.style.display = 'none';
+          dashboard.classList.remove('dashboard-visible');
+          loginPage.style.display = 'flex';
+        });
+      });
+
+      updateRelayUI();
     }
 
-    function startSensorDisplay() {
-      const db = firebase.database();
-
-      // Temperature -> /temperature (set by dht.readTemperature() in the firmware)
-      db.ref("/temperature").on("value", (snapshot) => {
-        const val = snapshot.val();
-        document.getElementById("tempValue").innerText =
-          (val === null || val === undefined) ? "--" : Number(val).toFixed(1);
-        document.getElementById("tempUpdated").innerText = formatTime();
-      });
-
-      // Humidity -> /humidity (set by dht.readHumidity() in the firmware)
-      db.ref("/humidity").on("value", (snapshot) => {
-        const val = snapshot.val();
-        document.getElementById("humValue").innerText =
-          (val === null || val === undefined) ? "--" : Number(val).toFixed(1);
-        document.getElementById("humUpdated").innerText = formatTime();
-      });
+    function updateSyncTime() {
+      document.getElementById('syncTime').textContent = formatTime();
     }
 
-    document.getElementById("logoutBtn").onclick = () => {
-      firebase.auth().signOut()
-        .then(() => {
-          dashboard.style.display = "none";
-          loginForm.style.display = "block";
-          document.getElementById("email").value = "";
-          document.getElementById("password").value = "";
-        })
-        .catch(error => {
-          alert("Logout failed: " + error.message);
-        });
-    };
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (window._tempData && window._humData) {
+          drawChart('tempChart', window._tempData, '#f59e0b');
+          drawChart('humChart', window._humData, '#00d4ff');
+        }
+      }, 300);
+    });
   </script>
 </body>
+
 </html>
