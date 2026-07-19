@@ -35,7 +35,9 @@
       --green: #22c55e;
       --green-glow: rgba(34, 197, 94, 0.35);
       --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
       --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.35);
       --purple: #a855f7;
       --text-primary: rgba(255, 255, 255, 0.92);
       --text-secondary: rgba(255, 255, 255, 0.48);
@@ -103,6 +105,22 @@
       z-index: 0;
     }
 
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.008) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.008) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+    }
+
     /* ─── Scrollbar ─── */
     ::-webkit-scrollbar {
       width: 4px;
@@ -154,6 +172,13 @@
       background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04));
       z-index: -1;
       pointer-events: none;
+      animation: borderGlide 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes borderGlide {
+      0% { background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04)); }
+      50% { background: linear-gradient(225deg, rgba(0, 212, 255, 0.04), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.06)); }
+      100% { background: linear-gradient(45deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04)); }
     }
 
     .login-card::after {
@@ -197,6 +222,10 @@
       font-weight: 600;
       text-align: center;
       letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary) 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .login-card .sub {
@@ -362,10 +391,18 @@
       content: '';
       position: absolute;
       bottom: -1px;
-      left: 10%;
-      right: 10%;
+      left: 5%;
+      right: 5%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.06), transparent);
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--gold), transparent);
+      opacity: 0.15;
+      transition: opacity 0.5s ease;
+      animation: barSweep 4s ease-in-out infinite;
+    }
+
+    @keyframes barSweep {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.25; }
     }
 
     .top-bar .brand {
@@ -491,6 +528,29 @@
       position: relative;
     }
 
+    .hero-section .corner-brackets {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .hero-section .corner-brackets span {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: rgba(255, 255, 255, 0.06);
+      border-style: solid;
+      transition: border-color 0.8s ease;
+    }
+
+    .hero-section .corner-brackets .tl { top: 10px; left: 50%; margin-left: -120px; border-width: 1px 0 0 1px; }
+    .hero-section .corner-brackets .tr { top: 10px; right: 50%; margin-right: -120px; border-width: 1px 1px 0 0; }
+    .hero-section .corner-brackets .bl { bottom: 30px; left: 50%; margin-left: -120px; border-width: 0 0 1px 1px; }
+    .hero-section .corner-brackets .br { bottom: 30px; right: 50%; margin-right: -120px; border-width: 0 1px 1px 0; }
+
+    .power-btn-wrap.on ~ .corner-brackets span { border-color: rgba(34, 197, 94, 0.12); }
+    .power-btn-wrap.off ~ .corner-brackets span { border-color: rgba(239, 68, 68, 0.12); }
+
     .hero-section .ac-label {
       font-family: var(--font-display);
       font-size: 0.6rem;
@@ -498,12 +558,73 @@
       text-transform: uppercase;
       color: var(--text-tertiary);
       margin-bottom: 24px;
+      position: relative;
+    }
+
+    .hero-section .ac-label::before,
+    .hero-section .ac-label::after {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06));
+      margin: 0 12px;
+      vertical-align: middle;
+    }
+
+    .hero-section .ac-label::after {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent);
     }
 
     .power-btn-wrap {
       position: relative;
       width: 200px;
       height: 200px;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .power-btn-wrap:active {
+      transform: scale(0.95);
+    }
+
+    /* Central glow aura */
+    .power-btn-wrap .aura {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: all 0.8s ease;
+      opacity: 0;
+    }
+
+    .power-btn-wrap.on .aura {
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
+      opacity: 1;
+      animation: auraPulse 3s ease-in-out infinite;
+    }
+
+    .power-btn-wrap.off .aura {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+      opacity: 1;
+      animation: auraPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes auraPulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 1;
+      }
     }
 
     /* Decorative orbital rings */
@@ -552,7 +673,29 @@
       animation: ringPulse 4s ease-in-out infinite;
     }
 
+    .power-btn-wrap.off .ring-glow {
+      border-color: rgba(239, 68, 68, 0.06);
+      box-shadow:
+        0 0 80px rgba(239, 68, 68, 0.04),
+        0 0 160px rgba(239, 68, 68, 0.02);
+      animation: ringPulseOff 4s ease-in-out infinite;
+    }
+
     @keyframes ringPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.04);
+        opacity: 0.5;
+      }
+    }
+
+    @keyframes ringPulseOff {
 
       0%,
       100% {
@@ -575,11 +718,29 @@
       position: relative;
       background: rgba(255, 255, 255, 0.025);
       border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.5s ease;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+    }
+
+    .power-btn::after {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      pointer-events: none;
+      transition: all 0.5s ease;
+    }
+
+    .power-btn-wrap.on .power-btn::after {
+      border-color: rgba(34, 197, 94, 0.08);
+    }
+
+    .power-btn-wrap.off .power-btn::after {
+      border-color: rgba(239, 68, 68, 0.08);
     }
 
     .power-btn .ripple-container {
@@ -594,9 +755,13 @@
     .power-btn .ripple {
       position: absolute;
       border-radius: 50%;
-      background: rgba(34, 197, 94, 0.08);
+      background: rgba(34, 197, 94, 0.12);
       transform: scale(0);
       animation: rippleAnim 0.7s ease-out forwards;
+    }
+
+    .power-btn .ripple.off-ripple {
+      background: rgba(239, 68, 68, 0.12);
     }
 
     @keyframes rippleAnim {
@@ -637,6 +802,50 @@
       filter: drop-shadow(0 0 16px var(--green-glow));
     }
 
+    .power-btn-wrap.off .power-btn {
+      border-color: rgba(239, 68, 68, 0.12);
+      background: rgba(239, 68, 68, 0.03);
+      box-shadow:
+        0 0 60px rgba(239, 68, 68, 0.06),
+        inset 0 0 60px rgba(239, 68, 68, 0.02);
+    }
+
+    .power-btn-wrap.off .power-btn .power-icon svg path {
+      stroke: var(--red);
+      filter: drop-shadow(0 0 16px var(--red-glow));
+    }
+
+    /* Orbital rotation when on */
+    .power-btn-wrap.on .orbit-ring.r1 {
+      animation: orbitSpin 8s linear infinite;
+    }
+
+    .power-btn-wrap.on .orbit-ring.r2 {
+      animation: orbitSpin 12s linear infinite reverse;
+    }
+
+    .power-btn-wrap.on .orbit-ring.r3 {
+      animation: orbitSpin 16s linear infinite;
+    }
+
+    @keyframes orbitSpin {
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    .power-btn-wrap.on .orbit-ring.r1,
+    .power-btn-wrap.on .orbit-ring.r2,
+    .power-btn-wrap.on .orbit-ring.r3 {
+      border-color: rgba(34, 197, 94, 0.04);
+    }
+
+    .power-btn-wrap.off .orbit-ring.r1,
+    .power-btn-wrap.off .orbit-ring.r2,
+    .power-btn-wrap.off .orbit-ring.r3 {
+      border-color: rgba(239, 68, 68, 0.04);
+    }
+
     .power-btn:hover {
       border-color: rgba(255, 255, 255, 0.08);
       background: rgba(255, 255, 255, 0.04);
@@ -645,6 +854,11 @@
     .power-btn-wrap.on .power-btn:hover {
       border-color: rgba(34, 197, 94, 0.18);
       background: rgba(34, 197, 94, 0.05);
+    }
+
+    .power-btn-wrap.off .power-btn:hover {
+      border-color: rgba(239, 68, 68, 0.18);
+      background: rgba(239, 68, 68, 0.05);
     }
 
     .power-status-text {
@@ -657,8 +871,11 @@
       transition: color 0.5s ease;
     }
 
+
+
     .power-status-text.off {
-      color: var(--text-tertiary);
+      color: var(--red);
+      text-shadow: 0 0 24px var(--red-glow);
     }
 
     .power-status-text.on {
@@ -689,6 +906,24 @@
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
       pointer-events: none;
     }
+
+    .glass-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      border-radius: 0 0 2px 0;
+      pointer-events: none;
+      transition: background 0.5s ease;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .glass-card[data-accent="amber"]::after { background: var(--amber); box-shadow: 0 0 12px var(--amber-glow); }
+    .glass-card[data-accent="cyan"]::after { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); }
+    .glass-card[data-accent="red"]::after { background: var(--red); box-shadow: 0 0 12px var(--red-glow); }
+    .glass-card[data-accent="gold"]::after { background: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
 
     .glass-card:hover {
       background: var(--surface-hover);
@@ -762,19 +997,70 @@
     /* ─── Sensors Row ─── */
     .sensors-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 18px;
     }
 
-    @media (max-width: 920px) {
-      .sensors-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .sensors-row .sensor-featured {
+      position: relative;
+      border-left: 2px solid transparent;
     }
 
-    @media (max-width: 520px) {
+    .sensors-row .sensor-featured[data-accent="amber"] {
+      border-left-color: rgba(245, 158, 11, 0.08);
+    }
+
+    .sensors-row .sensor-featured[data-accent="cyan"] {
+      border-left-color: rgba(0, 212, 255, 0.08);
+    }
+
+    .sensors-row .sensor-featured .card-value {
+      font-size: 3rem;
+    }
+
+    .sensors-row .sensor-featured .card-label {
+      font-size: 0.7rem;
+      letter-spacing: 1.8px;
+    }
+
+    .sensors-row .sensor-featured:hover {
+      transform: translateY(-2px);
+      border-left-width: 3px;
+    }
+    .sensors-row .sensor-featured[data-accent="amber"]:hover {
+      border-left-color: rgba(245, 158, 11, 0.2);
+      box-shadow: 0 8px 40px rgba(245, 158, 11, 0.03), 0 0 0 1px rgba(245, 158, 11, 0.04);
+    }
+    .sensors-row .sensor-featured[data-accent="cyan"]:hover {
+      border-left-color: rgba(0, 212, 255, 0.2);
+      box-shadow: 0 8px 40px rgba(0, 212, 255, 0.03), 0 0 0 1px rgba(0, 212, 255, 0.04);
+    }
+
+    .sensors-row .sensor-secondary {
+      display: contents;
+    }
+
+    .sensors-row .sensor-secondary .glass-card {
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .sensors-row .sensor-secondary .card-value {
+      font-size: 1.6rem;
+    }
+
+    .sensors-row .sensor-secondary .card-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 780px) {
       .sensors-row {
         grid-template-columns: 1fr;
+      }
+
+      .sensors-row .sensor-featured .card-value {
+        font-size: 2.4rem;
       }
     }
 
@@ -863,6 +1149,15 @@
       margin-right: 2px;
     }
 
+    .section-title .accent-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+      animation: pulseDot 2.4s ease-in-out infinite;
+    }
+
     /* ─── Logout ─── */
     .logout-bar {
       display: flex;
@@ -888,9 +1183,10 @@
     }
 
     .logout-btn:hover {
-      border-color: rgba(255, 255, 255, 0.08);
-      color: var(--text-secondary);
-      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      background: rgba(239, 68, 68, 0.03);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.03);
     }
 
     .logout-btn svg {
@@ -899,13 +1195,28 @@
     }
 
     .logout-btn:hover svg {
-      opacity: 0.5;
+      opacity: 0.6;
     }
 
     /* ─── Value transition animation ─── */
     .card-value span,
     .card-value {
       transition: color 0.6s ease;
+    }
+
+    .card-value .flash-update {
+      animation: flashValue 0.6s ease;
+    }
+
+    @keyframes flashValue {
+      0% {
+        color: var(--cyan);
+        opacity: 1;
+      }
+      100% {
+        color: inherit;
+        opacity: 1;
+      }
     }
 
     /* ─── Responsive ─── */
@@ -965,6 +1276,15 @@
       .login-card {
         padding: 36px 26px 30px;
       }
+
+      .hero-section .corner-brackets span {
+        width: 12px;
+        height: 12px;
+      }
+      .hero-section .corner-brackets .tl { margin-left: -90px; }
+      .hero-section .corner-brackets .tr { margin-right: -90px; }
+      .hero-section .corner-brackets .bl { margin-left: -90px; }
+      .hero-section .corner-brackets .br { margin-right: -90px; }
     }
 
     @media (max-width: 480px) {
@@ -1014,6 +1334,7 @@
   <!-- ─── Background Layers ─── -->
   <div class="bg-gradient-overlay"></div>
   <div class="noise-overlay"></div>
+  <div class="grid-overlay"></div>
   <canvas id="starfield"></canvas>
 
   <!-- ═══════════════════════════════════════
@@ -1021,7 +1342,12 @@
        ═══════════════════════════════════════ -->
   <div id="loginPage">
     <div class="login-card">
-      <div class="brand-icon">&#10052;</div>
+      <div class="brand-icon">
+        <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
+          <path d="M6 21a5 5 0 0 1-.5-9.97A7 7 0 0 1 19 12.5a4 4 0 0 1 1.5 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 12v8M12 16l8 0M14 14l4 4M14 18l4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <h1>Cloud-Based Air Conditioner Control</h1>
 
       <div class="login-input-group">
@@ -1065,9 +1391,13 @@
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="brand">
-        <div class="logo">C</div>
+        <div class="logo">
+          <svg viewBox="0 0 32 32" fill="none" width="18" height="18">
+            <path d="M6 21a5 5 0 0 1-.5-9.97A7 7 0 0 1 19 12.5a4 4 0 0 1 1.5 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 12v8M12 16l8 0M14 14l4 4M14 18l4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
         <h2>Cloud-Based Air Conditioner Control</h2>
-        <span class="tag">v2.0</span>
       </div>
       <div class="status-pills">
         <div class="status-pill">
@@ -1095,6 +1425,7 @@
     <div class="hero-section">
       <div class="ac-label">System Power</div>
       <div class="power-btn-wrap off" id="powerWrap">
+        <div class="aura"></div>
         <div class="orbit-ring r3"></div>
         <div class="orbit-ring r2"></div>
         <div class="orbit-ring r1"></div>
@@ -1108,48 +1439,55 @@
           </div>
         </button>
       </div>
+      <div class="corner-brackets">
+        <span class="tl"></span><span class="tr"></span>
+        <span class="bl"></span><span class="br"></span>
+      </div>
       <div class="power-status-text off" id="powerStatusText">System Off</div>
+
     </div>
 
     <!-- Sensors -->
-    <div class="section-title"><span class="num">01</span> Environment</div>
+    <div class="section-title"><span class="num">01</span> Environment <span class="accent-dot"></span></div>
     <div class="sensors-row">
-      <div class="glass-card">
+      <div class="glass-card sensor-featured" data-accent="amber">
         <div class="card-top">
           <span class="card-label">Temperature</span>
           <div class="card-icon temp">&#127777;</div>
         </div>
         <div class="card-value"><span id="tempValue">--</span><span class="unit">&deg;C</span></div>
-        <div class="card-sub"><span id="tempUpdated">--</span></div>
+        <div class="card-sub">Last updated <span id="tempUpdated">--</span></div>
       </div>
-      <div class="glass-card">
+      <div class="glass-card sensor-featured" data-accent="cyan">
         <div class="card-top">
           <span class="card-label">Humidity</span>
           <div class="card-icon hum">&#128167;</div>
         </div>
         <div class="card-value"><span id="humValue">--</span><span class="unit">%</span></div>
-        <div class="card-sub"><span id="humUpdated">--</span></div>
+        <div class="card-sub">Last updated <span id="humUpdated">--</span></div>
       </div>
-      <div class="glass-card">
-        <div class="card-top">
-          <span class="card-label">Heat Index</span>
-          <div class="card-icon heat">&#9889;</div>
+      <div class="sensor-secondary">
+        <div class="glass-card">
+          <div class="card-top">
+            <span class="card-label">Heat Index</span>
+            <div class="card-icon heat">&#9889;</div>
+          </div>
+          <div class="card-value"><span id="heatIndexValue">--</span><span class="unit">&deg;C</span></div>
+          <div class="card-sub">Feels hotter than ambient</div>
         </div>
-        <div class="card-value"><span id="heatIndexValue">--</span><span class="unit">&deg;C</span></div>
-        <div class="card-sub">Feels hotter than ambient</div>
-      </div>
-      <div class="glass-card">
-        <div class="card-top">
-          <span class="card-label">Feels Like</span>
-          <div class="card-icon feels">&#127958;</div>
+        <div class="glass-card">
+          <div class="card-top">
+            <span class="card-label">Feels Like</span>
+            <div class="card-icon feels">&#127958;</div>
+          </div>
+          <div class="card-value"><span id="feelsLikeValue">--</span><span class="unit">&deg;C</span></div>
+          <div class="card-sub">Perceived temperature</div>
         </div>
-        <div class="card-value"><span id="feelsLikeValue">--</span><span class="unit">&deg;C</span></div>
-        <div class="card-sub">Perceived temperature</div>
       </div>
     </div>
 
     <!-- Charts -->
-    <div class="section-title"><span class="num">02</span> 24-Hour Trends</div>
+    <div class="section-title"><span class="num">02</span> 24-Hour Trends <span class="accent-dot"></span></div>
     <div class="charts-row">
       <div class="glass-card chart-card">
         <div class="chart-header">
@@ -1363,7 +1701,7 @@
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      const pad = { top: 18, bottom: 22, left: 32, right: 16 };
+      const pad = { top: 24, bottom: 22, left: 32, right: 16 };
       const cw = W - pad.left - pad.right;
       const ch = H - pad.top - pad.bottom;
 
@@ -1397,11 +1735,27 @@
         y: pad.top + ch - ((v - min) / range) * ch
       }));
 
+      // Glow layer
+      ctx.save();
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = 0.3;
+      ctx.stroke();
+      ctx.restore();
+
       // Gradient fill
       const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
       const c = color === '#f59e0b'
         ? 'rgba(245,158,11,0.12)' : 'rgba(0,212,255,0.10)';
+      const c2 = color === '#f59e0b'
+        ? 'rgba(245,158,11,0.02)' : 'rgba(0,212,255,0.02)';
       grad.addColorStop(0, c);
+      grad.addColorStop(0.5, c2);
       grad.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.beginPath();
       ctx.moveTo(points[0].x, pad.top + ch);
@@ -1419,17 +1773,26 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
 
-      // Dots
-      points.forEach(p => {
+      // Dots - last point highlighted
+      points.forEach((p, i) => {
+        const isLast = i === points.length - 1;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = color;
+        ctx.arc(p.x, p.y, isLast ? 4 : 2, 0, Math.PI * 2);
+        ctx.fillStyle = isLast ? '#fff' : color;
         ctx.fill();
+        if (isLast) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.globalAlpha = 0.12;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
       });
 
       // Y-axis
-      ctx.fillStyle = 'rgba(255,255,255,0.1)';
-      ctx.font = '9px DM Sans';
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.font = '8px DM Sans';
       ctx.textAlign = 'right';
       for (let i = 0; i <= 4; i++) {
         const val = max - (range / 4) * i;
@@ -1440,10 +1803,19 @@
       // X-axis
       const labels = ['00', '06', '12', '18', '23'];
       ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
       labels.forEach((l, i) => {
         const x = pad.left + (cw / (labels.length - 1)) * i;
         ctx.fillText(l + ':00', x, H - 4);
       });
+
+      // Current value on last point
+      const last = points[points.length - 1];
+      const lastVal = data[data.length - 1];
+      ctx.fillStyle = color;
+      ctx.font = '10px DM Sans';
+      ctx.textAlign = 'center';
+      ctx.fillText(lastVal.toFixed(1), last.x, last.y - 10);
     }
 
     function initCharts() {
@@ -1491,6 +1863,7 @@
           powerStatusText.textContent = anyOn ? 'System Active' : 'System Off';
           document.getElementById('relayHealth').textContent = anyOn ? 'Active' : 'Standby';
           document.getElementById('relayDot').className = 'dot ' + (anyOn ? 'green pulse' : 'amber');
+
         });
       }
 
@@ -1500,8 +1873,9 @@
 
       powerBtn.addEventListener('click', (e) => {
         const rect = powerBtn.getBoundingClientRect();
+        const isCurrentlyOn = powerWrap.classList.contains('on');
         const ripple = document.createElement('div');
-        ripple.className = 'ripple';
+        ripple.className = 'ripple' + (isCurrentlyOn ? ' off-ripple' : '');
         const size = Math.max(rect.width, rect.height);
         const x = (e.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
         const y = (e.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
@@ -1517,12 +1891,20 @@
         });
       });
 
+      function flashElement(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('flash-update');
+        void el.offsetWidth;
+        el.classList.add('flash-update');
+      }
+
       db.ref('/temperature').on('value', snap => {
         const val = snap.val();
         document.getElementById('tempValue').textContent =
           (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
         document.getElementById('tempUpdated').textContent = formatTime();
         updateDerivedSensors(val, null);
+        flashElement('tempValue');
       });
 
       db.ref('/humidity').on('value', snap => {
@@ -1531,6 +1913,7 @@
           (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
         document.getElementById('humUpdated').textContent = formatTime();
         updateDerivedSensors(null, val);
+        flashElement('humValue');
       });
 
       function updateDerivedSensors(temp, hum) {
@@ -1539,6 +1922,8 @@
         if (t !== null && h !== null && !isNaN(t) && !isNaN(h)) {
           document.getElementById('heatIndexValue').textContent = computeHeatIndex(t, h) ?? '--';
           document.getElementById('feelsLikeValue').textContent = computeFeelsLike(t, h) ?? '--';
+          flashElement('heatIndexValue');
+          flashElement('feelsLikeValue');
         }
       }
 
