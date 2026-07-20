@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Cloud-Based Air Conditioner Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *,
     *::before,
@@ -20,35 +17,41 @@
     }
 
     :root {
-      --bg-primary: #06060e;
-      --bg-secondary: #0a0a16;
-      --surface: rgba(255, 255, 255, 0.028);
-      --surface-hover: rgba(255, 255, 255, 0.05);
-      --border: rgba(255, 255, 255, 0.05);
-      --border-hover: rgba(255, 255, 255, 0.09);
-      --cyan: #00d4ff;
+      --bg-deep: #050816;
+      --bg-mid: #09101F;
+      --bg-surface: #0F172A;
+      --cyan: #00D4FF;
+      --cyan-soft: rgba(0, 212, 255, 0.08);
+      --cyan-dim: rgba(0, 212, 255, 0.04);
       --cyan-glow: rgba(0, 212, 255, 0.25);
-      --cyan-soft: rgba(0, 212, 255, 0.06);
-      --gold: #d4a574;
-      --gold-glow: rgba(212, 165, 116, 0.15);
-      --gold-soft: rgba(212, 165, 116, 0.05);
-      --green: #22c55e;
-      --green-glow: rgba(34, 197, 94, 0.35);
-      --amber: #f59e0b;
-      --amber-glow: rgba(245, 158, 11, 0.25);
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.35);
-      --purple: #a855f7;
+      --cyan-blur: rgba(0, 212, 255, 0.12);
+      --secondary: #38BDF8;
+      --glow: #6EE7FF;
+      --success: #22C55E;
+      --success-glow: rgba(34, 197, 94, 0.3);
+      --success-dim: rgba(34, 197, 94, 0.06);
+      --warning: #F59E0B;
+      --warning-glow: rgba(245, 158, 11, 0.25);
       --text-primary: rgba(255, 255, 255, 0.92);
-      --text-secondary: rgba(255, 255, 255, 0.48);
-      --text-tertiary: rgba(255, 255, 255, 0.18);
-      --radius: 22px;
+      --text-secondary: rgba(255, 255, 255, 0.55);
+      --text-tertiary: rgba(255, 255, 255, 0.2);
+      --text-muted: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-light: rgba(255, 255, 255, 0.07);
+      --glass-bg: rgba(15, 23, 42, 0.55);
+      --glass-bg-alt: rgba(15, 23, 42, 0.4);
+      --glass-border: rgba(0, 212, 255, 0.08);
+      --glass-border-hover: rgba(0, 212, 255, 0.15);
+      --glass-blur: blur(28px);
+      --radius-lg: 30px;
+      --radius-md: 18px;
       --radius-sm: 12px;
       --radius-full: 9999px;
-      --font-display: 'Chakra Petch', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
-      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-snap: 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-brand: 'Syne', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+      --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     html {
@@ -57,17 +60,24 @@
 
     body {
       font-family: var(--font-body);
-      background: var(--bg-primary);
+      background: var(--bg-deep);
       color: var(--text-primary);
       min-height: 100vh;
       overflow-x: hidden;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
 
-    /* ─── Starfield ─── */
-    #starfield {
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.06); border-radius: 4px; }
+
+    /* ═══════════════════════════════════════════
+       BACKGROUND
+       ═══════════════════════════════════════════ */
+
+    #bg-canvas {
       position: fixed;
       top: 0;
       left: 0;
@@ -84,9 +94,9 @@
       width: 100%;
       height: 100%;
       background:
-        radial-gradient(ellipse 70% 50% at 15% 25%, rgba(0, 212, 255, 0.03) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 85% 75%, rgba(212, 165, 116, 0.02) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
+        radial-gradient(ellipse 70% 45% at 10% 20%, rgba(0, 212, 255, 0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 80%, rgba(56, 189, 248, 0.025) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0, 0, 0, 0.3) 0%, transparent 100%);
       pointer-events: none;
       z-index: 0;
     }
@@ -97,7 +107,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.018;
+      opacity: 0.015;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-repeat: repeat;
       background-size: 256px 256px;
@@ -114,51 +124,245 @@
       pointer-events: none;
       z-index: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.008) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.008) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
-      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+        linear-gradient(rgba(255,255,255,0.006) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.006) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 15%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 15%, transparent 70%);
     }
 
-    /* ─── Scrollbar ─── */
-    ::-webkit-scrollbar {
-      width: 4px;
+    /* Glowing blobs */
+    .glow-blob {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
     }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
+    .glow-blob-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+      top: -150px;
+      left: -100px;
+      animation: blobFloat1 12s ease-in-out infinite alternate;
     }
 
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 4px;
+    .glow-blob-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.03) 0%, transparent 70%);
+      bottom: -100px;
+      right: -80px;
+      animation: blobFloat2 10s ease-in-out infinite alternate;
     }
 
-    /* ─── Login ─── */
-    #loginPage {
+    .glow-blob-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(110, 231, 255, 0.025) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: blobFloat3 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes blobFloat1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, 60px) scale(1.15); }
+    }
+    @keyframes blobFloat2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-60px, -40px) scale(1.1); }
+    }
+    @keyframes blobFloat3 {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+      50% { transform: translate(-45%, -55%) scale(1.2); opacity: 0.6; }
+      100% { transform: translate(-55%, -45%) scale(0.9); opacity: 0.3; }
+    }
+
+    /* Digital network lines */
+    .network-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .network-lines svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.04;
+    }
+
+    .network-lines .line-anim {
+      animation: lineMove 20s linear infinite;
+    }
+
+    @keyframes lineMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Cloud data flow lines */
+    .cloud-line {
+      position: fixed;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+      animation: cloudLineDrift 8s linear infinite;
+    }
+
+    .cloud-line:nth-child(1) { top: 15%; left: -10%; width: 30%; animation-duration: 7s; animation-delay: 0s; }
+    .cloud-line:nth-child(2) { top: 35%; left: -5%; width: 25%; animation-duration: 9s; animation-delay: 1.5s; }
+    .cloud-line:nth-child(3) { top: 55%; left: -15%; width: 35%; animation-duration: 11s; animation-delay: 0.5s; }
+    .cloud-line:nth-child(4) { top: 75%; left: -8%; width: 20%; animation-duration: 6s; animation-delay: 3s; }
+    .cloud-line:nth-child(5) { top: 90%; left: -12%; width: 28%; animation-duration: 10s; animation-delay: 2s; }
+
+    @keyframes cloudLineDrift {
+      0% { transform: translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(120vw); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════════
+       LOGIN VIEW
+       ═══════════════════════════════════════════ */
+
+    #loginView {
       position: relative;
       z-index: 1;
+      width: 100%;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      padding: 20px;
+      opacity: 0;
+      animation: viewFadeIn 1s ease forwards;
+    }
+
+    #loginView.hidden {
+      display: none;
+    }
+
+    @keyframes viewFadeIn {
+      to { opacity: 1; }
+    }
+
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 460px;
       width: 100%;
+      min-height: 100vh;
       padding: 20px;
     }
 
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(48px);
-      -webkit-backdrop-filter: blur(48px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 28px;
-      padding: 48px 38px 38px;
+    /* ═══════════════════════════════════════════
+       GLASS CARD
+       ═══════════════════════════════════════════ */
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
       position: relative;
       overflow: hidden;
-      animation: cardFloat 7s ease-in-out infinite;
+      transition: all var(--transition);
+    }
+
+    .glass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.06), transparent);
+      pointer-events: none;
+    }
+
+    .glass::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border-radius: calc(var(--radius-lg) + 1px);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.03), transparent 35%, transparent 65%, rgba(56, 189, 248, 0.02));
+      z-index: -1;
+      pointer-events: none;
+      animation: borderGlide 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes borderGlide {
+      0% { background: linear-gradient(135deg, rgba(0, 212, 255, 0.04), transparent 30%, transparent 70%, rgba(56, 189, 248, 0.02)); }
+      33% { background: linear-gradient(225deg, rgba(0, 212, 255, 0.03), transparent 30%, transparent 70%, rgba(110, 231, 255, 0.03)); }
+      66% { background: linear-gradient(45deg, rgba(56, 189, 248, 0.03), transparent 30%, transparent 70%, rgba(0, 212, 255, 0.04)); }
+      100% { background: linear-gradient(315deg, rgba(0, 212, 255, 0.04), transparent 30%, transparent 70%, rgba(56, 189, 248, 0.02)); }
+    }
+
+    .glass:hover {
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 255, 0.03);
+    }
+
+    .glass .glass-shine {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.02) 0%, transparent 50%);
+      pointer-events: none;
+      animation: shineDrift 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes shineDrift {
+      0% { transform: translate(-10%, -10%); }
+      100% { transform: translate(10%, 10%); }
+    }
+
+    /* ═══════════════════════════════════════════
+       LOGIN CARD
+       ═══════════════════════════════════════════ */
+
+    .login-card {
+      padding: 40px 36px 36px;
+      background: var(--glass-bg-alt);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(0, 212, 255, 0.02);
+    }
+
+    .login-card .card-shine {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 15%, rgba(255,255,255,0.015) 0%, transparent 50%);
+      pointer-events: none;
+      animation: shineDrift 8s ease-in-out infinite alternate;
     }
 
     .login-card::before {
@@ -168,173 +372,342 @@
       left: -1px;
       right: -1px;
       bottom: -1px;
-      border-radius: 29px;
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04));
+      border-radius: calc(var(--radius-lg) + 1px);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 30%, transparent 70%, rgba(56, 189, 248, 0.03));
       z-index: -1;
       pointer-events: none;
-      animation: borderGlide 6s ease-in-out infinite alternate;
-    }
-
-    @keyframes borderGlide {
-      0% { background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04)); }
-      50% { background: linear-gradient(225deg, rgba(0, 212, 255, 0.04), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.06)); }
-      100% { background: linear-gradient(45deg, rgba(0, 212, 255, 0.06), transparent 35%, transparent 65%, rgba(212, 165, 116, 0.04)); }
+      animation: borderGlide 8s ease-in-out infinite alternate;
     }
 
     .login-card::after {
       content: '';
       position: absolute;
       top: 0;
-      left: 15%;
-      right: 15%;
+      left: 10%;
+      right: 10%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), rgba(110, 231, 255, 0.06), transparent);
     }
 
-    @keyframes cardFloat {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-5px);
-      }
+    .login-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      position: relative;
+      animation: logoFloat 6s ease-in-out infinite;
     }
 
-    .login-card .brand-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--cyan), var(--gold));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      margin: 0 auto 18px;
-      box-shadow: 0 0 40px rgba(0, 212, 255, 0.12);
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
-    .login-card h1 {
+    .login-icon svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.15));
+    }
+
+    .login-card h2 {
       font-family: var(--font-display);
       font-size: 1.5rem;
-      font-weight: 600;
+      font-weight: 700;
       text-align: center;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, var(--text-primary) 40%, var(--cyan) 100%);
+      letter-spacing: -0.8px;
+      line-height: 1.3;
+    }
+
+    .login-card h2 .glow-text {
+      background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .login-card .sub {
+    .login-card .login-subtitle {
       text-align: center;
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      font-size: 0.82rem;
-      margin: 4px 0 30px;
-      letter-spacing: 0.2px;
+      margin: 6px 0 24px;
+      font-weight: 400;
     }
 
-    .login-input-group {
+    /* Input Groups */
+    .input-group {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
-    .login-input-group .icon {
+    .input-group input {
+      width: 100%;
+      padding: 18px 18px 18px 48px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      outline: none;
+      transition: all var(--transition);
+    }
+
+    .input-group input::placeholder {
+      color: transparent;
+    }
+
+    .input-group input:focus {
+      border-color: rgba(0, 212, 255, 0.15);
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 0 24px rgba(0, 212, 255, 0.03);
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      pointer-events: none;
+      transition: all 0.25s ease;
+      font-weight: 400;
+    }
+
+    .input-group input:focus ~ label,
+    .input-group input:not(:placeholder-shown) ~ label {
+      top: 0;
+      transform: translateY(-50%) scale(0.78);
+      left: 14px;
+      color: var(--text-secondary);
+      background: linear-gradient(to bottom, transparent 0%, var(--glass-bg-alt) 50%);
+      padding: 0 6px;
+    }
+
+    .input-group input:focus ~ label {
+      color: var(--cyan);
+    }
+
+    .input-group .input-icon {
       position: absolute;
       left: 16px;
       top: 50%;
       transform: translateY(-50%);
       width: 18px;
       height: 18px;
-      opacity: 0.2;
+      opacity: 0.15;
       pointer-events: none;
+      transition: opacity var(--transition);
     }
 
-    .login-input-group input {
-      width: 100%;
-      padding: 15px 16px 15px 48px;
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      outline: none;
-      transition: border-color var(--transition), box-shadow var(--transition);
+    .input-group:focus-within .input-icon {
+      opacity: 0.35;
     }
 
-    .login-input-group input::placeholder {
+    .input-group .input-glow {
+      position: absolute;
+      inset: -1px;
+      border-radius: 13px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: linear-gradient(135deg, rgba(0,212,255,0.06), transparent, rgba(56,189,248,0.03));
+    }
+
+    .input-group:focus-within .input-glow {
+      opacity: 1;
+    }
+
+    /* Password toggle */
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      opacity: 0.2;
+      color: #fff;
+      transition: opacity var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-pw:hover {
+      opacity: 0.4;
+    }
+
+    .toggle-pw svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .toggle-pw .eye-off {
+      display: none;
+    }
+
+    .toggle-pw.visible .eye-on { display: none; }
+    .toggle-pw.visible .eye-off { display: block; }
+
+    /* Checkbox & Forgot */
+    .login-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0 20px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .remember-me input {
+      display: none;
+    }
+
+    .check-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+
+    .remember-me input:checked + .check-box {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+    }
+
+    .check-box svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .remember-me input:checked + .check-box svg {
+      opacity: 1;
+    }
+
+    .forgot-link {
+      font-size: 0.78rem;
       color: var(--text-tertiary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--transition);
     }
 
-    .login-input-group input:focus {
-      border-color: rgba(0, 212, 255, 0.2);
-      box-shadow: 0 0 24px rgba(0, 212, 255, 0.04);
+    .forgot-link:hover {
+      color: var(--cyan);
     }
 
-    .login-btn {
-      width: 100%;
-      padding: 16px;
-      font-family: var(--font-display);
-      font-size: 0.95rem;
+    .terms-link {
+      color: var(--cyan);
+      text-decoration: none;
       font-weight: 600;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .terms-link::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--cyan);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
+    }
+
+    .terms-link:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .terms-link:hover {
+      color: var(--glow);
+    }
+
+    /* Connect Button */
+    .connect-btn {
+      width: 100%;
+      padding: 18px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
       letter-spacing: 0.8px;
       border: none;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      background: linear-gradient(135deg, var(--cyan), #0088aa);
+      background: linear-gradient(135deg, #00D4FF, #0284C7);
       color: #fff;
       transition: all var(--transition);
-      margin-top: 10px;
       position: relative;
       overflow: hidden;
+      text-transform: uppercase;
     }
 
-    .login-btn::before {
+    .connect-btn::before {
       content: '';
       position: absolute;
       top: 0;
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
       transition: left 0.7s ease;
     }
 
-    .login-btn:hover::before {
+    .connect-btn:hover::before {
       left: 100%;
     }
 
-    .login-btn:hover {
-      box-shadow: 0 0 50px rgba(0, 212, 255, 0.15);
-      transform: translateY(-1px);
+    .connect-btn:hover {
+      box-shadow:
+        0 0 40px rgba(0, 212, 255, 0.15),
+        0 0 80px rgba(0, 212, 255, 0.05);
+      transform: translateY(-2px);
     }
 
-    .login-btn:active {
-      transform: translateY(0);
+    .connect-btn:active {
+      transform: translateY(0) scale(0.98);
     }
 
-    .login-footer-text {
+    .connect-btn .btn-content {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
-      margin-top: 20px;
-      font-size: 0.7rem;
-      color: var(--text-tertiary);
+      gap: 10px;
     }
 
-    .login-footer-text .lock {
-      opacity: 0.3;
+    .connect-btn .btn-content svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
     }
 
+    /* Google Sign-In */
     .login-error {
-      color: var(--red);
-      font-size: 0.76rem;
+      color: #ef4444;
+      font-size: 0.75rem;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 12px;
       min-height: 20px;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -344,7 +717,10 @@
       opacity: 1;
     }
 
-    /* ─── Dashboard ─── */
+    /* ═══════════════════════════════════════════
+       DASHBOARD VIEW
+       ═══════════════════════════════════════════ */
+
     #dashboard {
       display: none;
       position: relative;
@@ -355,22 +731,22 @@
     }
 
     .dashboard-visible {
-      animation: dashFade 0.7s ease;
+      animation: dashFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes dashFade {
-      from {
-        opacity: 0;
-        transform: translateY(18px);
-      }
+    .dashboard-visible .top-bar { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; }
+    .dashboard-visible .dashboard-main { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.15s; }
+    .dashboard-visible .env-grid > .dash-glass { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .dashboard-visible .env-grid > .dash-glass:nth-child(1) { animation-delay: 0.2s; }
+    .dashboard-visible .env-grid > .dash-glass:nth-child(2) { animation-delay: 0.25s; }
+    .dashboard-visible .env-grid > .dash-glass:nth-child(3) { animation-delay: 0.3s; }
+    .dashboard-visible .env-grid > .dash-glass:nth-child(4) { animation-delay: 0.35s; }
+    .dashboard-visible .logout-bar { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.35s; }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    @keyframes dashFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ─── Top Bar ─── */
+    /* Top Bar */
     .top-bar {
       display: flex;
       align-items: center;
@@ -378,13 +754,14 @@
       flex-wrap: wrap;
       gap: 14px;
       padding: 14px 22px;
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 32px;
+      background: rgba(255, 255, 255, 0.025);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(0, 212, 255, 0.06);
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
       position: relative;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
     }
 
     .top-bar::after {
@@ -394,735 +771,597 @@
       left: 5%;
       right: 5%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--gold), transparent);
-      opacity: 0.15;
-      transition: opacity 0.5s ease;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--secondary), transparent);
+      opacity: 0.12;
       animation: barSweep 4s ease-in-out infinite;
     }
 
-    @keyframes barSweep {
-      0%, 100% { opacity: 0.15; }
-      50% { opacity: 0.25; }
-    }
+    @keyframes barSweep { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.22; } }
 
-    .top-bar .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+    .top-bar .brand { display: flex; align-items: center; gap: 14px; }
 
     .top-bar .brand .logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--cyan), var(--gold));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      font-family: var(--font-display);
-      font-weight: 700;
-      color: #fff;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #00D4FF, #0284C7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-family: var(--font-display); font-weight: 700; color: #fff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.08);
     }
 
     .top-bar .brand h2 {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      font-weight: 600;
-      letter-spacing: -0.3px;
+      font-family: var(--font-display); font-size: 1rem; font-weight: 600; letter-spacing: -0.3px;
+      background: linear-gradient(135deg, var(--text-primary) 50%, var(--cyan) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
 
-    .top-bar .brand .tag {
-      font-size: 0.6rem;
-      color: var(--text-tertiary);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 2px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 4px;
-      margin-left: 4px;
-    }
 
-    .status-pills {
+    /* Dashboard Main Layout */
+    .dashboard-main {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      gap: 20px;
+      align-items: stretch;
     }
 
-    .status-pill {
+    .dashboard-left {
+      flex: 0 0 320px;
       display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 11px 5px 7px;
-      border-radius: var(--radius-full);
-      font-size: 0.65rem;
-      font-weight: 500;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      color: var(--text-secondary);
-      letter-spacing: 0.2px;
     }
 
-    .status-pill .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .dashboard-right {
+      flex: 1;
+      min-width: 0;
+      padding-top: 20px;
     }
 
-    .status-pill .dot.green {
-      background: var(--green);
-      box-shadow: 0 0 6px var(--green-glow);
+    .env-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 18px;
     }
 
-    .status-pill .dot.cyan {
-      background: var(--cyan);
-      box-shadow: 0 0 6px var(--cyan-glow);
-    }
-
-    .status-pill .dot.amber {
-      background: var(--amber);
-      box-shadow: 0 0 6px rgba(245, 158, 11, 0.25);
-    }
-
-    .status-pill .dot.pulse {
-      animation: pulseDot 2.4s ease-in-out infinite;
-    }
-
-    @keyframes pulseDot {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.35;
-        transform: scale(0.85);
-      }
-    }
-
-    .status-pill .bar {
-      width: 32px;
-      height: 3px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.04);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .status-pill .bar .fill {
-      height: 100%;
-      border-radius: 2px;
-      background: var(--cyan);
-      transition: width 2s ease;
-    }
-
-    /* ─── Hero ─── */
-    .hero-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0 40px;
-      position: relative;
-    }
-
-    .hero-section .corner-brackets {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .hero-section .corner-brackets span {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      border-color: rgba(255, 255, 255, 0.06);
-      border-style: solid;
-      transition: border-color 0.8s ease;
-    }
-
-    .hero-section .corner-brackets .tl { top: 10px; left: 50%; margin-left: -120px; border-width: 1px 0 0 1px; }
-    .hero-section .corner-brackets .tr { top: 10px; right: 50%; margin-right: -120px; border-width: 1px 1px 0 0; }
-    .hero-section .corner-brackets .bl { bottom: 30px; left: 50%; margin-left: -120px; border-width: 0 0 1px 1px; }
-    .hero-section .corner-brackets .br { bottom: 30px; right: 50%; margin-right: -120px; border-width: 0 1px 1px 0; }
-
-    .power-btn-wrap.on ~ .corner-brackets span { border-color: rgba(34, 197, 94, 0.12); }
-    .power-btn-wrap.off ~ .corner-brackets span { border-color: rgba(239, 68, 68, 0.12); }
-
-    .hero-section .ac-label {
-      font-family: var(--font-display);
-      font-size: 0.6rem;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--text-tertiary);
-      margin-bottom: 24px;
-      position: relative;
-    }
-
-    .hero-section .ac-label::before,
-    .hero-section .ac-label::after {
-      content: '';
-      display: inline-block;
-      width: 24px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06));
-      margin: 0 12px;
-      vertical-align: middle;
-    }
-
-    .hero-section .ac-label::after {
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent);
-    }
-
-    .power-btn-wrap {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .power-btn-wrap:active {
-      transform: scale(0.95);
-    }
-
-    /* Central glow aura */
-    .power-btn-wrap .aura {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 140px;
-      height: 140px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      pointer-events: none;
-      transition: all 0.8s ease;
-      opacity: 0;
-    }
-
-    .power-btn-wrap.on .aura {
-      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
-      opacity: 1;
-      animation: auraPulse 3s ease-in-out infinite;
-    }
-
-    .power-btn-wrap.off .aura {
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
-      opacity: 1;
-      animation: auraPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes auraPulse {
-
-      0%,
-      100% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 0.6;
-      }
-
-      50% {
-        transform: translate(-50%, -50%) scale(1.15);
-        opacity: 1;
-      }
-    }
-
-    /* Decorative orbital rings */
-    .power-btn-wrap .orbit-ring {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      pointer-events: none;
-    }
-
-    .power-btn-wrap .orbit-ring.r1 {
-      width: 220px;
-      height: 220px;
-    }
-
-    .power-btn-wrap .orbit-ring.r2 {
-      width: 260px;
-      height: 260px;
-    }
-
-    .power-btn-wrap .orbit-ring.r3 {
-      width: 300px;
-      height: 300px;
-    }
-
-    .power-btn-wrap .ring-glow {
-      position: absolute;
-      top: -16px;
-      left: -16px;
-      right: -16px;
-      bottom: -16px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      transition: all 0.8s ease;
-      pointer-events: none;
-    }
-
-    .power-btn-wrap.on .ring-glow {
-      border-color: rgba(34, 197, 94, 0.06);
-      box-shadow:
-        0 0 80px rgba(34, 197, 94, 0.04),
-        0 0 160px rgba(34, 197, 94, 0.02);
-      animation: ringPulse 4s ease-in-out infinite;
-    }
-
-    .power-btn-wrap.off .ring-glow {
-      border-color: rgba(239, 68, 68, 0.06);
-      box-shadow:
-        0 0 80px rgba(239, 68, 68, 0.04),
-        0 0 160px rgba(239, 68, 68, 0.02);
-      animation: ringPulseOff 4s ease-in-out infinite;
-    }
-
-    @keyframes ringPulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-
-      50% {
-        transform: scale(1.04);
-        opacity: 0.5;
-      }
-    }
-
-    @keyframes ringPulseOff {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-
-      50% {
-        transform: scale(1.04);
-        opacity: 0.5;
-      }
-    }
-
-    .power-btn {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .power-btn::after {
-      content: '';
-      position: absolute;
-      inset: 8px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      pointer-events: none;
-      transition: all 0.5s ease;
-    }
-
-    .power-btn-wrap.on .power-btn::after {
-      border-color: rgba(34, 197, 94, 0.08);
-    }
-
-    .power-btn-wrap.off .power-btn::after {
-      border-color: rgba(239, 68, 68, 0.08);
-    }
-
-    .power-btn .ripple-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .power-btn .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(34, 197, 94, 0.12);
-      transform: scale(0);
-      animation: rippleAnim 0.7s ease-out forwards;
-    }
-
-    .power-btn .ripple.off-ripple {
-      background: rgba(239, 68, 68, 0.12);
-    }
-
-    @keyframes rippleAnim {
-      to {
-        transform: scale(3);
-        opacity: 0;
-      }
-    }
-
-    .power-btn .power-icon {
-      position: relative;
-      z-index: 1;
-      width: 72px;
-      height: 72px;
-      transition: all 0.5s ease;
-    }
-
-    .power-btn .power-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .power-btn .power-icon svg path {
-      stroke: rgba(255, 255, 255, 0.15);
-      transition: stroke 0.5s ease;
-    }
-
-    .power-btn-wrap.on .power-btn {
-      border-color: rgba(34, 197, 94, 0.12);
-      background: rgba(34, 197, 94, 0.03);
-      box-shadow:
-        0 0 60px rgba(34, 197, 94, 0.06),
-        inset 0 0 60px rgba(34, 197, 94, 0.02);
-    }
-
-    .power-btn-wrap.on .power-btn .power-icon svg path {
-      stroke: var(--green);
-      filter: drop-shadow(0 0 16px var(--green-glow));
-    }
-
-    .power-btn-wrap.off .power-btn {
-      border-color: rgba(239, 68, 68, 0.12);
-      background: rgba(239, 68, 68, 0.03);
-      box-shadow:
-        0 0 60px rgba(239, 68, 68, 0.06),
-        inset 0 0 60px rgba(239, 68, 68, 0.02);
-    }
-
-    .power-btn-wrap.off .power-btn .power-icon svg path {
-      stroke: var(--red);
-      filter: drop-shadow(0 0 16px var(--red-glow));
-    }
-
-    /* Orbital rotation when on */
-    .power-btn-wrap.on .orbit-ring.r1 {
-      animation: orbitSpin 8s linear infinite;
-    }
-
-    .power-btn-wrap.on .orbit-ring.r2 {
-      animation: orbitSpin 12s linear infinite reverse;
-    }
-
-    .power-btn-wrap.on .orbit-ring.r3 {
-      animation: orbitSpin 16s linear infinite;
-    }
-
-    @keyframes orbitSpin {
-      to {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-    }
-
-    .power-btn-wrap.on .orbit-ring.r1,
-    .power-btn-wrap.on .orbit-ring.r2,
-    .power-btn-wrap.on .orbit-ring.r3 {
-      border-color: rgba(34, 197, 94, 0.04);
-    }
-
-    .power-btn-wrap.off .orbit-ring.r1,
-    .power-btn-wrap.off .orbit-ring.r2,
-    .power-btn-wrap.off .orbit-ring.r3 {
-      border-color: rgba(239, 68, 68, 0.04);
-    }
-
-    .power-btn:hover {
-      border-color: rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .power-btn-wrap.on .power-btn:hover {
-      border-color: rgba(34, 197, 94, 0.18);
-      background: rgba(34, 197, 94, 0.05);
-    }
-
-    .power-btn-wrap.off .power-btn:hover {
-      border-color: rgba(239, 68, 68, 0.18);
-      background: rgba(239, 68, 68, 0.05);
-    }
-
-    .power-status-text {
-      margin-top: 18px;
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      transition: color 0.5s ease;
-    }
-
-
-
-    .power-status-text.off {
-      color: var(--red);
-      text-shadow: 0 0 24px var(--red-glow);
-    }
-
-    .power-status-text.on {
-      color: var(--green);
-      text-shadow: 0 0 24px var(--green-glow);
-    }
-
-    /* ─── Glass Card ─── */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px 22px;
-      transition: all var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
-      pointer-events: none;
-    }
-
-    .glass-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 40px;
-      height: 2px;
-      border-radius: 0 0 2px 0;
-      pointer-events: none;
-      transition: background 0.5s ease;
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .glass-card[data-accent="amber"]::after { background: var(--amber); box-shadow: 0 0 12px var(--amber-glow); }
-    .glass-card[data-accent="cyan"]::after { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); }
-    .glass-card[data-accent="red"]::after { background: var(--red); box-shadow: 0 0 12px var(--red-glow); }
-    .glass-card[data-accent="gold"]::after { background: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
-
-    .glass-card:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-hover);
-    }
-
-    .glass-card .card-top {
+    .env-grid .chart-card { padding: 20px; }
+    .env-grid .chart-card .chart-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
-
-    .glass-card .card-label {
+    .env-grid .chart-card .chart-label {
       font-size: 0.65rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1.4px;
       color: var(--text-tertiary);
     }
-
-    .glass-card .card-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-      transition: background var(--transition);
-    }
-
-    .glass-card .card-icon.temp {
-      background: rgba(245, 158, 11, 0.06);
-    }
-
-    .glass-card .card-icon.hum {
-      background: rgba(0, 212, 255, 0.06);
-    }
-
-    .glass-card .card-icon.heat {
-      background: rgba(239, 68, 68, 0.06);
-    }
-
-    .glass-card .card-icon.feels {
-      background: rgba(212, 165, 116, 0.06);
-    }
-
-    .glass-card .card-value {
-      font-family: var(--font-display);
-      font-size: 2.4rem;
-      font-weight: 600;
-      letter-spacing: -1px;
-      line-height: 1.1;
-    }
-
-    .glass-card .card-value .unit {
-      font-size: 0.95rem;
-      font-weight: 400;
-      opacity: 0.35;
-      margin-left: 3px;
-    }
-
-    .glass-card .card-sub {
-      font-size: 0.7rem;
-      color: var(--text-tertiary);
-      margin-top: 6px;
-    }
-
-    /* ─── Sensors Row ─── */
-    .sensors-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .sensors-row .sensor-featured {
-      position: relative;
-      border-left: 2px solid transparent;
-    }
-
-    .sensors-row .sensor-featured[data-accent="amber"] {
-      border-left-color: rgba(245, 158, 11, 0.08);
-    }
-
-    .sensors-row .sensor-featured[data-accent="cyan"] {
-      border-left-color: rgba(0, 212, 255, 0.08);
-    }
-
-    .sensors-row .sensor-featured .card-value {
-      font-size: 3rem;
-    }
-
-    .sensors-row .sensor-featured .card-label {
-      font-size: 0.7rem;
-      letter-spacing: 1.8px;
-    }
-
-    .sensors-row .sensor-featured:hover {
-      transform: translateY(-2px);
-      border-left-width: 3px;
-    }
-    .sensors-row .sensor-featured[data-accent="amber"]:hover {
-      border-left-color: rgba(245, 158, 11, 0.2);
-      box-shadow: 0 8px 40px rgba(245, 158, 11, 0.03), 0 0 0 1px rgba(245, 158, 11, 0.04);
-    }
-    .sensors-row .sensor-featured[data-accent="cyan"]:hover {
-      border-left-color: rgba(0, 212, 255, 0.2);
-      box-shadow: 0 8px 40px rgba(0, 212, 255, 0.03), 0 0 0 1px rgba(0, 212, 255, 0.04);
-    }
-
-    .sensors-row .sensor-secondary {
-      display: contents;
-    }
-
-    .sensors-row .sensor-secondary .glass-card {
-      background: rgba(255, 255, 255, 0.015);
-    }
-
-    .sensors-row .sensor-secondary .card-value {
-      font-size: 1.6rem;
-    }
-
-    .sensors-row .sensor-secondary .card-icon {
-      width: 32px;
-      height: 32px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 780px) {
-      .sensors-row {
-        grid-template-columns: 1fr;
-      }
-
-      .sensors-row .sensor-featured .card-value {
-        font-size: 2.4rem;
-      }
-    }
-
-    /* ─── Charts ─── */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    @media (max-width: 700px) {
-      .charts-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .chart-card {
-      padding: 22px;
-    }
-
-    .chart-card .chart-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .chart-card .chart-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-      color: var(--text-tertiary);
-    }
-
-    .chart-card .chart-legend {
-      display: flex;
-      gap: 14px;
-    }
-
-    .chart-card .chart-legend span {
+    .env-grid .chart-card .chart-legend { display: flex; gap: 14px; }
+    .env-grid .chart-card .chart-legend span {
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       color: var(--text-tertiary);
     }
-
-    .chart-card .chart-legend .swatch {
-      width: 7px;
-      height: 7px;
-      border-radius: 2px;
-    }
-
-    .chart-card canvas {
+    .env-grid .chart-card .chart-legend .swatch { width: 7px; height: 7px; border-radius: 2px; }
+    .env-grid .chart-card .chart-wrap { position: relative; }
+    .env-grid .chart-card .chart-wrap canvas {
       width: 100%;
-      height: 190px;
+      height: 160px;
       display: block;
       border-radius: 8px;
     }
 
-    /* ─── Section Title ─── */
+    .power-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 28px;
+      position: relative;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(0, 212, 255, 0.05);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .power-card .corner-brackets { position: absolute; inset: 0; pointer-events: none; }
+
+    .power-card .corner-brackets span {
+      position: absolute; width: 18px; height: 18px;
+      border-color: rgba(255, 255, 255, 0.04); border-style: solid; transition: border-color 0.8s ease;
+    }
+
+    .power-card .corner-brackets .tl { top: 8px; left: 16px; border-width: 1px 0 0 1px; }
+    .power-card .corner-brackets .tr { top: 8px; right: 16px; border-width: 1px 1px 0 0; }
+    .power-card .corner-brackets .bl { bottom: 8px; left: 16px; border-width: 0 0 1px 1px; }
+    .power-card .corner-brackets .br { bottom: 8px; right: 16px; border-width: 0 1px 1px 0; }
+
+    .power-card .ac-label {
+      font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 24px; position: relative;
+    }
+
+    .power-card .ac-label::before,
+    .power-card .ac-label::after {
+      content: ''; display: inline-block; width: 24px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06));
+      margin: 0 12px; vertical-align: middle;
+    }
+    .power-card .ac-label::after { background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent); }
+
+    .power-btn-wrap { position: relative; width: 200px; height: 200px; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .power-btn-wrap:active { transform: scale(0.95); }
+
+    .power-btn-wrap .aura {
+      position: absolute; top: 50%; left: 50%; width: 140px; height: 140px;
+      transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+      transition: all 0.8s ease; opacity: 0;
+    }
+
+    .power-btn-wrap.on .aura { background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%); opacity: 1; animation: auraPulse 3s ease-in-out infinite; }
+    .power-btn-wrap.off .aura { background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%); opacity: 1; animation: auraPulse 3s ease-in-out infinite; }
+
+    @keyframes auraPulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; } }
+
+    .power-btn-wrap .orbit-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.02); pointer-events: none; }
+    .power-btn-wrap .orbit-ring.r1 { width: 220px; height: 220px; }
+    .power-btn-wrap .orbit-ring.r2 { width: 260px; height: 260px; }
+    .power-btn-wrap .orbit-ring.r3 { width: 300px; height: 300px; }
+
+    .power-btn-wrap .ring-glow { position: absolute; top: -16px; left: -16px; right: -16px; bottom: -16px; border-radius: 50%; border: 2px solid transparent; transition: all 0.8s ease; pointer-events: none; }
+    .power-btn-wrap.on .ring-glow { border-color: rgba(34, 197, 94, 0.06); box-shadow: 0 0 80px rgba(34, 197, 94, 0.04), 0 0 160px rgba(34, 197, 94, 0.02); animation: ringPulse 4s ease-in-out infinite; }
+    .power-btn-wrap.off .ring-glow { border-color: rgba(239, 68, 68, 0.06); box-shadow: 0 0 80px rgba(239, 68, 68, 0.04), 0 0 160px rgba(239, 68, 68, 0.02); animation: ringPulseOff 4s ease-in-out infinite; }
+
+    @keyframes ringPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.5; } }
+    @keyframes ringPulseOff { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.5; } }
+
+    .power-btn {
+      width: 100%; height: 100%; border-radius: 50%; border: none; cursor: pointer; position: relative;
+      background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+
+    .power-btn::after { content: ''; position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.02); pointer-events: none; transition: all 0.5s ease; }
+    .power-btn .ripple-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .power-btn .ripple { position: absolute; border-radius: 50%; background: rgba(34, 197, 94, 0.12); transform: scale(0); animation: rippleAnim 0.7s ease-out forwards; }
+    .power-btn .ripple.off-ripple { background: rgba(239, 68, 68, 0.12); }
+    @keyframes rippleAnim { to { transform: scale(3); opacity: 0; } }
+
+    .power-btn .power-icon { position: relative; z-index: 1; width: 72px; height: 72px; transition: all 0.5s ease; }
+    .power-btn .power-icon svg { width: 100%; height: 100%; }
+    .power-btn .power-icon svg path { stroke: rgba(255, 255, 255, 0.15); transition: stroke 0.5s ease; }
+
+    .power-btn-wrap.on .power-btn { border-color: rgba(34, 197, 94, 0.12); background: rgba(34, 197, 94, 0.03); box-shadow: 0 0 60px rgba(34, 197, 94, 0.06), inset 0 0 60px rgba(34, 197, 94, 0.02); }
+    .power-btn-wrap.on .power-btn .power-icon svg path { stroke: var(--success); filter: drop-shadow(0 0 16px var(--success-glow)); }
+    .power-btn-wrap.off .power-btn { border-color: rgba(239, 68, 68, 0.12); background: rgba(239, 68, 68, 0.03); box-shadow: 0 0 60px rgba(239, 68, 68, 0.06), inset 0 0 60px rgba(239, 68, 68, 0.02); }
+    .power-btn-wrap.off .power-btn .power-icon svg path { stroke: #ef4444; filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.3)); }
+
+    .power-btn-wrap.on .orbit-ring.r1 { animation: orbitSpin 8s linear infinite; }
+    .power-btn-wrap.on .orbit-ring.r2 { animation: orbitSpin 12s linear infinite reverse; }
+    .power-btn-wrap.on .orbit-ring.r3 { animation: orbitSpin 16s linear infinite; }
+    @keyframes orbitSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    .power-btn-wrap.on .orbit-ring.r1, .power-btn-wrap.on .orbit-ring.r2, .power-btn-wrap.on .orbit-ring.r3 { border-color: rgba(34, 197, 94, 0.04); }
+    .power-btn-wrap.off .orbit-ring.r1, .power-btn-wrap.off .orbit-ring.r2, .power-btn-wrap.off .orbit-ring.r3 { border-color: rgba(239, 68, 68, 0.04); }
+
+    .power-status-text { margin-top: 18px; font-family: var(--font-display); font-size: 1rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.5s ease; }
+    .power-status-text.off { color: #ef4444; text-shadow: 0 0 24px rgba(239, 68, 68, 0.3); }
+    .power-status-text.on { color: var(--success); text-shadow: 0 0 24px var(--success-glow); }
+
+    /* Hero Meta */
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 24px;
+      padding: 14px 28px;
+      background: rgba(255, 255, 255, 0.015);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-sm);
+    }
+
+    .hero-meta-item { text-align: center; }
+
+    .hero-meta-label {
+      font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--text-tertiary); font-weight: 600;
+    }
+
+    .hero-meta-value {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+      margin-top: 4px; letter-spacing: -0.3px;
+    }
+
+    .hero-meta-unit { font-size: 0.65rem; font-weight: 400; opacity: 0.35; }
+
+    .hero-meta-divider {
+      width: 1px; height: 32px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Glass Card */
+    .dash-glass {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(0, 212, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 22px 22px;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .dash-glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.05), transparent);
+      pointer-events: none;
+    }
+
+    .dash-glass::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 48px; height: 2px;
+      border-radius: 0 0 2px 0;
+      pointer-events: none;
+      transition: all 0.5s ease;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dash-glass[data-accent="amber"]::after { background: var(--warning); box-shadow: 0 0 16px var(--warning-glow); }
+    .dash-glass[data-accent="cyan"]::after { background: var(--cyan); box-shadow: 0 0 16px var(--cyan-glow); }
+    .dash-glass[data-accent="gold"]::after { background: #d4a574; box-shadow: 0 0 16px rgba(212,165,116,0.25); }
+
+    .dash-glass:hover {
+      background: rgba(15, 23, 42, 0.55);
+      border-color: rgba(0, 212, 255, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 212, 255, 0.02);
+    }
+
+    /* Widget Styles */
+    .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .widget-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .widget-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text-tertiary);
+    }
+
+    .widget-badge {
+      font-size: 0.5rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .widget-badge.amber { background: rgba(245, 158, 11, 0.08); color: var(--warning); }
+    .widget-badge.cyan { background: rgba(0, 212, 255, 0.08); color: var(--cyan); }
+    .widget-badge.gold { background: rgba(212, 165, 116, 0.08); color: #d4a574; }
+
+    .widget-trend {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .widget-trend.up { color: var(--success); }
+    .widget-trend.down { color: #ef4444; }
+
+    .widget-body { margin-bottom: 14px; }
+
+    .widget-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .widget-updated {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* Radial Gauge */
+    .widget-gauge-wrap {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      flex-shrink: 0;
+    }
+
+    .widget-gauge { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+    .widget-gauge .gauge-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.03);
+      stroke-width: 6;
+    }
+
+    .widget-gauge .gauge-fill {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 314.16;
+      stroke-dashoffset: 314.16;
+      transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .widget-gauge .gauge-fill.amber-fill { stroke: var(--warning); filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.15)); }
+    .widget-gauge .gauge-fill.cyan-fill { stroke: var(--cyan); filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.15)); }
+
+    .widget-gauge-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .widget-gauge-num {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+      display: block;
+    }
+
+    .widget-gauge-unit {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: block;
+      margin-top: 1px;
+    }
+
+    .widget-info {
+      flex: 1;
+      min-width: 0;
+      padding-left: 16px;
+    }
+
+    .widget-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .widget-info-row:last-child { border-bottom: none; }
+
+    .widget-info-label {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+    }
+
+    .widget-info-val {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .widget-sparkline {
+      width: 100px;
+      height: 24px;
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+
+    .sensor-widget .widget-body {
+      display: flex;
+      align-items: center;
+    }
+
+    /* AC Widget */
+    .ac-widget .widget-body { flex-direction: column; gap: 14px; }
+
+    .ac-status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .ac-status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.015);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .ac-status-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+    }
+
+    .ac-status-info { min-width: 0; }
+
+    .ac-status-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+    }
+
+    .ac-status-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: block;
+      margin-top: 1px;
+    }
+
+    .ac-target {
+      width: 100%;
+      padding: 10px 16px;
+      background: rgba(0, 212, 255, 0.02);
+      border: 1px solid rgba(0, 212, 255, 0.04);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ac-target-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+    }
+
+    .ac-target-value {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .ac-metrics {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .ac-metric { flex: 1; }
+
+    .ac-metric-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+    }
+
+    .ac-metric-val {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 1px;
+      display: block;
+    }
+
+    /* Energy Widget */
+    .energy-main {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .energy-value-wrap { flex-shrink: 0; }
+
+    .energy-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .energy-unit {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-left: 4px;
+    }
+
+    .energy-efficiency {
+      text-align: right;
+      flex: 1;
+    }
+
+    .energy-eff-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+    }
+
+    .energy-eff-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--success);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .energy-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 48px;
+      width: 100%;
+    }
+
+    .energy-bar-wrap {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      border-radius: 3px 3px 0 0;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .energy-bar-fill {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(to top, rgba(0, 212, 255, 0.12), rgba(0, 212, 255, 0.3));
+      transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 4px;
+    }
+
+    .energy-meta {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .energy-meta-item {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+    }
+
+    .energy-meta-item strong {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Section Title */
     .section-title {
       font-family: var(--font-display);
       font-size: 0.65rem;
@@ -1143,11 +1382,7 @@
       background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent);
     }
 
-    .section-title .num {
-      color: rgba(255, 255, 255, 0.08);
-      font-weight: 400;
-      margin-right: 2px;
-    }
+    .section-title .num { color: rgba(255, 255, 255, 0.08); font-weight: 400; margin-right: 2px; }
 
     .section-title .accent-dot {
       width: 4px;
@@ -1155,15 +1390,11 @@
       border-radius: 50%;
       background: var(--cyan);
       box-shadow: 0 0 8px var(--cyan-glow);
-      animation: pulseDot 2.4s ease-in-out infinite;
+      animation: dotPulse 2.4s ease-in-out infinite;
     }
 
-    /* ─── Logout ─── */
-    .logout-bar {
-      display: flex;
-      justify-content: center;
-      margin-top: 36px;
-    }
+    /* Logout */
+    .logout-bar { display: flex; justify-content: center; margin-top: 36px; }
 
     .logout-btn {
       padding: 10px 28px;
@@ -1184,208 +1415,227 @@
 
     .logout-btn:hover {
       border-color: rgba(239, 68, 68, 0.15);
-      color: var(--red);
+      color: #ef4444;
       background: rgba(239, 68, 68, 0.03);
       box-shadow: 0 0 30px rgba(239, 68, 68, 0.03);
     }
 
-    .logout-btn svg {
-      opacity: 0.3;
-      transition: opacity var(--transition);
-    }
+    .logout-btn svg { opacity: 0.3; transition: opacity var(--transition); }
+    .logout-btn:hover svg { opacity: 0.6; }
 
-    .logout-btn:hover svg {
-      opacity: 0.6;
-    }
-
-    /* ─── Value transition animation ─── */
-    .card-value span,
-    .card-value {
-      transition: color 0.6s ease;
-    }
-
-    .card-value .flash-update {
-      animation: flashValue 0.6s ease;
-    }
+    /* Value flash */
+    .flash-update { animation: flashValue 0.6s ease; }
 
     @keyframes flashValue {
-      0% {
-        color: var(--cyan);
-        opacity: 1;
-      }
-      100% {
-        color: inherit;
-        opacity: 1;
-      }
+      0% { color: var(--cyan); opacity: 1; }
+      100% { color: inherit; opacity: 1; }
     }
 
-    /* ─── Responsive ─── */
-    @media (max-width: 800px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 14px 16px;
-      }
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
 
-      .top-bar .brand {
-        justify-content: center;
-      }
+    @media (max-width: 900px) {
+      .hero-meta { gap: 14px; padding: 12px 18px; flex-wrap: wrap; justify-content: center; }
+    }
 
-      .top-bar .brand .tag {
-        display: none;
-      }
+    @media (max-width: 768px) {
+      .login-card { padding: 32px 24px 28px; }
+      .login-card h2 { font-size: 1.3rem; }
+      .login-icon { width: 60px; height: 60px; }
 
-      .status-pills {
-        justify-content: center;
-      }
-
-      .power-btn-wrap {
-        width: 160px;
-        height: 160px;
-      }
-
-      .power-btn-wrap .orbit-ring.r1 {
-        width: 180px;
-        height: 180px;
-      }
-
-      .power-btn-wrap .orbit-ring.r2 {
-        width: 210px;
-        height: 210px;
-      }
-
-      .power-btn-wrap .orbit-ring.r3 {
-        width: 240px;
-        height: 240px;
-      }
-
-      .power-btn .power-icon {
-        width: 56px;
-        height: 56px;
-      }
-
-      .glass-card .card-value {
-        font-size: 1.8rem;
-      }
-
-      #dashboard {
-        padding: 14px 16px 32px;
-      }
-
-      .login-card {
-        padding: 36px 26px 30px;
-      }
-
-      .hero-section .corner-brackets span {
-        width: 12px;
-        height: 12px;
-      }
-      .hero-section .corner-brackets .tl { margin-left: -90px; }
-      .hero-section .corner-brackets .tr { margin-right: -90px; }
-      .hero-section .corner-brackets .bl { margin-left: -90px; }
-      .hero-section .corner-brackets .br { margin-right: -90px; }
+      .top-bar { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
+      .top-bar .brand { justify-content: center; }
+      .power-btn-wrap { width: 160px; height: 160px; }
+      .power-btn-wrap .orbit-ring.r1 { width: 180px; height: 180px; }
+      .power-btn-wrap .orbit-ring.r2 { width: 210px; height: 210px; }
+      .power-btn-wrap .orbit-ring.r3 { width: 240px; height: 240px; }
+      .power-btn .power-icon { width: 56px; height: 56px; }
+      #dashboard { padding: 14px 16px 32px; }
+      .dashboard-main { flex-direction: column; }
+      .dashboard-left { flex: none; }
+      .power-card .corner-brackets span { width: 12px; height: 12px; }
+      .env-grid { grid-template-columns: 1fr; }
+      .hero-meta { gap: 10px; padding: 10px 14px; flex-wrap: wrap; justify-content: center; }
+      .hero-meta-divider { display: none; }
+      .ac-status-grid { grid-template-columns: 1fr; }
+      .widget-info { padding-left: 0; padding-top: 12px; width: 100%; }
     }
 
     @media (max-width: 480px) {
-      .power-btn-wrap {
-        width: 130px;
-        height: 130px;
-      }
+      .power-btn-wrap { width: 130px; height: 130px; }
+      .power-btn-wrap .orbit-ring.r1 { width: 150px; height: 150px; }
+      .power-btn-wrap .orbit-ring.r2 { width: 175px; height: 175px; }
+      .power-btn-wrap .orbit-ring.r3 { width: 200px; height: 200px; }
+      .power-btn .power-icon { width: 44px; height: 44px; }
 
-      .power-btn-wrap .orbit-ring.r1 {
-        width: 150px;
-        height: 150px;
-      }
-
-      .power-btn-wrap .orbit-ring.r2 {
-        width: 175px;
-        height: 175px;
-      }
-
-      .power-btn-wrap .orbit-ring.r3 {
-        width: 200px;
-        height: 200px;
-      }
-
-      .power-btn .power-icon {
-        width: 44px;
-        height: 44px;
-      }
-
-      .glass-card .card-value {
-        font-size: 1.5rem;
-      }
-
-      .status-pills {
-        gap: 4px;
-      }
-
-      .status-pill {
-        font-size: 0.6rem;
-        padding: 4px 8px 4px 6px;
-      }
     }
   </style>
 </head>
-
 <body>
 
-  <!-- ─── Background Layers ─── -->
+  <!-- ═══════════════════════════════════════════
+       BACKGROUND LAYERS
+       ═══════════════════════════════════════════ -->
+
   <div class="bg-gradient-overlay"></div>
   <div class="noise-overlay"></div>
   <div class="grid-overlay"></div>
-  <canvas id="starfield"></canvas>
+  <div class="glow-blob glow-blob-1"></div>
+  <div class="glow-blob glow-blob-2"></div>
+  <div class="glow-blob glow-blob-3"></div>
 
-  <!-- ═══════════════════════════════════════
-       LOGIN
-       ═══════════════════════════════════════ -->
-  <div id="loginPage">
-    <div class="login-card">
-      <div class="brand-icon">
-        <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
-          <path d="M6 21a5 5 0 0 1-.5-9.97A7 7 0 0 1 19 12.5a4 4 0 0 1 1.5 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16 12v8M12 16l8 0M14 14l4 4M14 18l4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h1>Cloud-Based Air Conditioner Control</h1>
+  <div class="network-lines">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path d="M0,20 Q25,15 50,25 T100,20" stroke="rgba(0,212,255,0.3)" stroke-width="0.3" fill="none"/>
+      <path d="M0,40 Q30,35 55,45 T100,40" stroke="rgba(56,189,248,0.2)" stroke-width="0.3" fill="none"/>
+      <path d="M0,60 Q20,55 45,65 T100,60" stroke="rgba(0,212,255,0.2)" stroke-width="0.3" fill="none"/>
+      <path d="M0,80 Q35,75 60,85 T100,80" stroke="rgba(56,189,248,0.15)" stroke-width="0.3" fill="none"/>
+      <line x1="20" y1="0" x2="20" y2="100" stroke="rgba(0,212,255,0.08)" stroke-width="0.2"/>
+      <line x1="45" y1="0" x2="45" y2="100" stroke="rgba(56,189,248,0.06)" stroke-width="0.2"/>
+      <line x1="70" y1="0" x2="70" y2="100" stroke="rgba(0,212,255,0.08)" stroke-width="0.2"/>
+    </svg>
+  </div>
 
-      <div class="login-input-group">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-          <polyline points="22,6 12,13 2,6" />
-        </svg>
-        <input type="email" id="email" placeholder="Email address" autocomplete="email" />
-      </div>
+  <div class="cloud-line"></div>
+  <div class="cloud-line"></div>
+  <div class="cloud-line"></div>
+  <div class="cloud-line"></div>
+  <div class="cloud-line"></div>
 
-      <div class="login-input-group">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-        <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
-      </div>
+  <canvas id="bg-canvas"></canvas>
 
-      <button class="login-btn" id="loginBtn">Sign In</button>
+  <!-- ═══════════════════════════════════════════
+       LOGIN VIEW
+       ═══════════════════════════════════════════ -->
 
-      <div class="login-error" id="loginError"></div>
+  <div id="loginView">
+    <div class="login-container">
 
-      <div class="login-footer-text">
-        <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-        AES-256 encrypted session
-      </div>
+      <!-- ═══ CENTER PANEL ═══ -->
+      <div class="panel panel-center">
+        <div class="login-card">
+            <div class="card-shine"></div>
+
+            <!-- Glowing Cloud + Snowflake Icon -->
+            <div class="login-icon">
+              <svg viewBox="0 0 72 72" fill="none">
+                <!-- Cloud base with glow -->
+                <defs>
+                  <filter id="cloudGlow">
+                    <feGaussianBlur stdDeviation="2" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                  <linearGradient id="cloudGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#00D4FF"/>
+                    <stop offset="100%" stop-color="#6EE7FF"/>
+                  </linearGradient>
+                </defs>
+                <!-- Cloud body -->
+                <path d="M18 44a9 9 0 0 1-.8-17.95A12.5 12.5 0 0 1 40 23a7.5 7.5 0 0 1 3 14.3" stroke="url(#cloudGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#cloudGlow)" opacity="0.9"/>
+                <!-- Snowflake -->
+                <g stroke="url(#cloudGrad)" stroke-width="1.8" stroke-linecap="round" opacity="0.85">
+                  <line x1="36" y1="26" x2="36" y2="44"/>
+                  <line x1="26" y1="31" x2="46" y2="39"/>
+                  <line x1="26" y1="39" x2="46" y2="31"/>
+                  <!-- Snowflake arms -->
+                  <line x1="36" y1="26" x2="33" y2="22" opacity="0.5"/>
+                  <line x1="36" y1="26" x2="39" y2="22" opacity="0.5"/>
+                  <line x1="26" y1="31" x2="22" y2="28" opacity="0.5"/>
+                  <line x1="26" y1="39" x2="22" y2="42" opacity="0.5"/>
+                  <line x1="46" y1="31" x2="50" y2="28" opacity="0.5"/>
+                  <line x1="46" y1="39" x2="50" y2="42" opacity="0.5"/>
+                </g>
+                <!-- Glow dots -->
+                <circle cx="18" cy="44" r="2" fill="#00D4FF" opacity="0.3"/>
+                <circle cx="52" cy="40" r="1.5" fill="#6EE7FF" opacity="0.2"/>
+                <!-- Small decorative particles -->
+                <circle cx="12" cy="38" r="1" fill="#00D4FF" opacity="0.4">
+                  <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="58" cy="34" r="1" fill="#6EE7FF" opacity="0.3">
+                  <animate attributeName="opacity" values="0.3;0.05;0.3" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="24" cy="50" r="0.8" fill="#fff" opacity="0.2">
+                  <animate attributeName="opacity" values="0.2;0.05;0.2" dur="4s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            </div>
+
+            <h2><span class="glow-text">Connect to Cloud</span></h2>
+            <p class="login-subtitle">Secure access to your climate control system</p>
+
+            <!-- Email -->
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <div class="input-glow"></div>
+              <input type="email" id="email" placeholder=" " autocomplete="email" />
+              <label for="email">Email Address</label>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <div class="input-glow"></div>
+              <input type="password" id="password" placeholder=" " autocomplete="current-password" />
+              <label for="password">Password</label>
+              <button class="toggle-pw" id="togglePw" type="button" aria-label="Toggle password visibility">
+                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="login-options">
+              <label class="remember-me">
+                <input type="checkbox" id="termsCheck" />
+                <div class="check-box">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="2 6 5 9 10 3"/>
+                  </svg>
+                </div>
+                <span>I agree to the <a href="terms.html" target="_blank" class="terms-link">Terms and Conditions</a></span>
+              </label>
+            </div>
+
+            <!-- Connect to Cloud Button -->
+            <button class="connect-btn" id="loginBtn">
+              <span class="btn-content">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 17a5 5 0 0 1 0-10 7 7 0 0 1 13-3 5 5 0 0 1 2 9"/>
+                  <polyline points="12 12 12 21"/>
+                  <line x1="8" y1="18" x2="12" y2="21"/>
+                  <line x1="16" y1="18" x2="12" y2="21"/>
+                </svg>
+                Connect to Cloud
+              </span>
+            </button>
+
+            <!-- Error -->
+            <div class="login-error" id="loginError"></div>
+
+          </div>
+        </div>
+
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════
-       DASHBOARD
-       ═══════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════
+       DASHBOARD VIEW (after login)
+       ═══════════════════════════════════════════ -->
+
   <div id="dashboard">
 
     <!-- Top Bar -->
@@ -1399,126 +1649,182 @@
         </div>
         <h2>Cloud-Based Air Conditioner Control</h2>
       </div>
-      <div class="status-pills">
-        <div class="status-pill">
-          <span class="dot green pulse" id="espDot"></span>
-          <span>ESP32 <span id="espStatus">Connecting...</span></span>
-        </div>
-        <div class="status-pill">
-          <span class="dot cyan pulse" id="wifiDot"></span>
-          <span>WiFi <span id="wifiStatus">--</span></span>
-        </div>
-        <div class="status-pill">
-          <span class="dot green" id="relayDot"></span>
-          <span>Relays <span id="relayHealth">OK</span></span>
-        </div>
-        <div class="status-pill">
-          <div class="bar">
-            <div class="fill" id="wifiBar" style="width:70%"></div>
-          </div>
-          <span>Sync <span id="syncTime">--</span></span>
-        </div>
       </div>
-    </div>
 
-    <!-- Hero -->
-    <div class="hero-section">
-      <div class="ac-label">System Power</div>
-      <div class="power-btn-wrap off" id="powerWrap">
-        <div class="aura"></div>
-        <div class="orbit-ring r3"></div>
-        <div class="orbit-ring r2"></div>
-        <div class="orbit-ring r1"></div>
-        <div class="ring-glow"></div>
-        <button class="power-btn" id="powerBtn">
-          <div class="ripple-container" id="rippleContainer"></div>
-          <div class="power-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v10M18.36 6.64a9 9 0 1 1-12.73 0" />
-            </svg>
+    <!-- Dashboard Main: Power Left + Environment Right -->
+    <div class="dashboard-main">
+      <div class="dashboard-left">
+        <div class="power-card">
+          <div class="ac-label">System Power</div>
+          <div class="power-btn-wrap off" id="powerWrap">
+            <div class="aura"></div>
+            <div class="orbit-ring r3"></div>
+            <div class="orbit-ring r2"></div>
+            <div class="orbit-ring r1"></div>
+            <div class="ring-glow"></div>
+            <button class="power-btn" id="powerBtn">
+              <div class="ripple-container" id="rippleContainer"></div>
+              <div class="power-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v10M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                </svg>
+              </div>
+            </button>
           </div>
-        </button>
-      </div>
-      <div class="corner-brackets">
-        <span class="tl"></span><span class="tr"></span>
-        <span class="bl"></span><span class="br"></span>
-      </div>
-      <div class="power-status-text off" id="powerStatusText">System Off</div>
-
-    </div>
-
-    <!-- Sensors -->
-    <div class="section-title"><span class="num">01</span> Environment <span class="accent-dot"></span></div>
-    <div class="sensors-row">
-      <div class="glass-card sensor-featured" data-accent="amber">
-        <div class="card-top">
-          <span class="card-label">Temperature</span>
-          <div class="card-icon temp">&#127777;</div>
-        </div>
-        <div class="card-value"><span id="tempValue">--</span><span class="unit">&deg;C</span></div>
-        <div class="card-sub">Last updated <span id="tempUpdated">--</span></div>
-      </div>
-      <div class="glass-card sensor-featured" data-accent="cyan">
-        <div class="card-top">
-          <span class="card-label">Humidity</span>
-          <div class="card-icon hum">&#128167;</div>
-        </div>
-        <div class="card-value"><span id="humValue">--</span><span class="unit">%</span></div>
-        <div class="card-sub">Last updated <span id="humUpdated">--</span></div>
-      </div>
-      <div class="sensor-secondary">
-        <div class="glass-card">
-          <div class="card-top">
-            <span class="card-label">Heat Index</span>
-            <div class="card-icon heat">&#9889;</div>
+          <div class="corner-brackets">
+            <span class="tl"></span><span class="tr"></span>
+            <span class="bl"></span><span class="br"></span>
           </div>
-          <div class="card-value"><span id="heatIndexValue">--</span><span class="unit">&deg;C</span></div>
-          <div class="card-sub">Feels hotter than ambient</div>
-        </div>
-        <div class="glass-card">
-          <div class="card-top">
-            <span class="card-label">Feels Like</span>
-            <div class="card-icon feels">&#127958;</div>
-          </div>
-          <div class="card-value"><span id="feelsLikeValue">--</span><span class="unit">&deg;C</span></div>
-          <div class="card-sub">Perceived temperature</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Charts -->
-    <div class="section-title"><span class="num">02</span> 24-Hour Trends <span class="accent-dot"></span></div>
-    <div class="charts-row">
-      <div class="glass-card chart-card">
-        <div class="chart-header">
-          <span class="chart-label">Temperature</span>
-          <div class="chart-legend">
-            <span><span class="swatch" style="background:#f59e0b"></span> Actual</span>
-            <span><span class="swatch" style="background:rgba(245,158,11,0.15)"></span> Baseline</span>
+          <div class="power-status-text off" id="powerStatusText">System Off</div>
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">Target Temp</span>
+              <span class="hero-meta-value" id="targetTemp">24&deg;C</span>
+            </div>
+            <div class="hero-meta-divider"></div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">Operating Mode</span>
+              <span class="hero-meta-value" id="operatingMode" style="color:var(--cyan);">Standby</span>
+            </div>
           </div>
         </div>
-        <canvas id="tempChart"></canvas>
       </div>
-      <div class="glass-card chart-card">
-        <div class="chart-header">
-          <span class="chart-label">Humidity</span>
-          <div class="chart-legend">
-            <span><span class="swatch" style="background:#00d4ff"></span> Actual</span>
-            <span><span class="swatch" style="background:rgba(0,212,255,0.15)"></span> Baseline</span>
+      <div class="dashboard-right">
+        <div class="section-title" style="margin-top:0"><span class="num">01</span> Environment <span class="accent-dot"></span></div>
+        <div class="env-grid">
+          <div class="dash-glass sensor-widget" data-accent="amber">
+            <div class="widget-header">
+              <div class="widget-header-left">
+                <span class="widget-label">Temperature</span>
+                <span class="widget-badge amber">Live</span>
+              </div>
+              <span class="widget-trend up" id="tempTrend">&uarr; 0.3&deg;</span>
+            </div>
+            <div class="widget-body">
+              <div class="widget-gauge-wrap">
+                <svg class="widget-gauge" viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="50"/>
+                  <circle class="gauge-fill" id="tempGaugeFill" cx="60" cy="60" r="50"/>
+                </svg>
+                <div class="widget-gauge-value">
+                  <span class="widget-gauge-num" id="tempValue">--</span>
+                  <span class="widget-gauge-unit">&deg;C</span>
+                </div>
+              </div>
+              <div class="widget-info">
+                <div class="widget-info-row">
+                  <span class="widget-info-label">Heat Index</span>
+                  <span class="widget-info-val" id="heatIndexValue">--</span>
+                </div>
+                <div class="widget-info-row">
+                  <span class="widget-info-label">Feels Like</span>
+                  <span class="widget-info-val" id="feelsLikeValue">--</span>
+                </div>
+              </div>
+            </div>
+            <div class="widget-footer">
+              <canvas class="widget-sparkline" id="tempSparkline" width="200" height="32"></canvas>
+              <span class="widget-updated">Updated <span id="tempUpdated">--</span></span>
+            </div>
+          </div>
+          <div class="dash-glass sensor-widget" data-accent="cyan">
+            <div class="widget-header">
+              <div class="widget-header-left">
+                <span class="widget-label">Humidity</span>
+                <span class="widget-badge cyan">Live</span>
+              </div>
+              <span class="widget-trend down" id="humTrend">&darr; 1.2%</span>
+            </div>
+            <div class="widget-body">
+              <div class="widget-gauge-wrap">
+                <svg class="widget-gauge" viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="50"/>
+                  <circle class="gauge-fill" id="humGaugeFill" cx="60" cy="60" r="50"/>
+                </svg>
+                <div class="widget-gauge-value">
+                  <span class="widget-gauge-num" id="humValue">--</span>
+                  <span class="widget-gauge-unit">%</span>
+                </div>
+              </div>
+              <div class="widget-info">
+                <div class="widget-info-row">
+                  <span class="widget-info-label">Dew Point</span>
+                  <span class="widget-info-val" id="dewPoint">--</span>
+                </div>
+                <div class="widget-info-row">
+                  <span class="widget-info-label">Comfort</span>
+                  <span class="widget-info-val" id="comfortLevel" style="color:var(--cyan);">--</span>
+                </div>
+              </div>
+            </div>
+            <div class="widget-footer">
+              <canvas class="widget-sparkline" id="humSparkline" width="200" height="32"></canvas>
+              <span class="widget-updated">Updated <span id="humUpdated">--</span></span>
+            </div>
+          </div>
+          <div class="dash-glass sensor-widget ac-widget" data-accent="gold">
+            <div class="widget-header">
+              <div class="widget-header-left">
+                <span class="widget-label">AC Unit</span>
+                <span class="widget-badge gold" id="acBadge">Standby</span>
+              </div>
+              <span class="widget-trend" style="color:var(--text-tertiary);font-size:0.6rem;">System Info</span>
+            </div>
+            <div class="widget-body">
+              <div class="ac-status-grid">
+                <div class="ac-status-item">
+                  <div class="ac-status-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
+                      <path d="M12 2v10M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                    </svg>
+                  </div>
+                  <div class="ac-status-info">
+                    <span class="ac-status-label">Power</span>
+                    <span class="ac-status-val" id="powerStatus">Off</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ac-target">
+                <div class="ac-target-label">Target Temperature</div>
+                <div class="ac-target-value" id="targetTempDisplay">24&deg;C</div>
+              </div>
+            </div>
+            <div class="widget-footer">
+              <div class="ac-metrics">
+                <div class="ac-metric">
+                  <span class="ac-metric-label">Compressor</span>
+                  <span class="ac-metric-val" id="compressorStatus">Idle</span>
+                </div>
+                <div class="ac-metric">
+                  <span class="ac-metric-label">Runtime</span>
+                  <span class="ac-metric-val" id="runtime">0h 0m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dash-glass chart-card">
+            <div class="chart-header">
+              <span class="chart-label">Temperature &amp; Humidity Trend</span>
+              <div class="chart-legend">
+                <span><span class="swatch" style="background:#f59e0b"></span> Temp</span>
+                <span><span class="swatch" style="background:#00d4ff"></span> Humidity</span>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="dualChart"></canvas>
+            </div>
           </div>
         </div>
-        <canvas id="humChart"></canvas>
       </div>
     </div>
 
     <!-- Logout -->
     <div class="logout-bar">
       <button class="logout-btn" id="logoutBtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
         Sign Out
       </button>
@@ -1526,22 +1832,25 @@
 
   </div>
 
-  <!-- ═══════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
        FIREBASE SDK
-       ═══════════════════════════════════════ -->
+       ═══════════════════════════════════════════ -->
+
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
   <script>
     /* ═══════════════════════════════════════════
-       STARFIELD
+       STARFIELD & PARTICLES
        ═══════════════════════════════════════════ */
-    (function initStarfield() {
-      const canvas = document.getElementById('starfield');
+
+    (function initParticles() {
+      const canvas = document.getElementById('bg-canvas');
       const ctx = canvas.getContext('2d');
-      let stars = [];
       let w, h;
+      let particles = [];
+      let stars = [];
 
       function resize() {
         w = canvas.width = window.innerWidth;
@@ -1550,21 +1859,30 @@
       window.addEventListener('resize', resize);
       resize();
 
-      const count = 200;
-      for (let i = 0; i < count; i++) {
+      // Stars
+      for (let i = 0; i < 180; i++) {
         stars.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          size: Math.random() * 2.2 + 0.3,
-          speedX: (Math.random() - 0.5) * 0.08,
-          speedY: (Math.random() - 0.5) * 0.08,
-          twinkleSpeed: Math.random() * 0.02 + 0.005,
+          size: Math.random() * 2 + 0.3,
+          alpha: Math.random() * 0.6 + 0.1,
+          twinkleSpeed: Math.random() * 0.015 + 0.003,
           twinklePhase: Math.random() * Math.PI * 2,
-          brightness: Math.random() * 0.6 + 0.2,
-          hue: Math.random() > 0.85
-            ? (Math.random() > 0.5 ? '210' : '35') // faint blue or warm tint
-            : '0',
-          saturation: Math.random() > 0.85 ? '40%' : '0%',
+          hue: Math.random() > 0.92 ? (Math.random() > 0.5 ? '210' : '180') : '0',
+          sat: Math.random() > 0.92 ? '50%' : '0%'
+        });
+      }
+
+      // Particles
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          size: Math.random() * 2.5 + 0.5,
+          alpha: Math.random() * 0.3 + 0.05,
+          pulse: Math.random() * 2
         });
       }
 
@@ -1572,39 +1890,43 @@
         ctx.clearRect(0, 0, w, h);
         const time = Date.now();
 
+        // Draw stars
         for (const s of stars) {
-          s.x += s.speedX;
-          s.y += s.speedY;
-
-          // wrap
-          if (s.x < -5) s.x = w + 5;
-          if (s.x > w + 5) s.x = -5;
-          if (s.y < -5) s.y = h + 5;
-          if (s.y > h + 5) s.y = -5;
-
-          // twinkle
           const twinkle = 0.5 + 0.5 * Math.sin(time * s.twinkleSpeed + s.twinklePhase);
-          const alpha = s.brightness * twinkle;
-
+          const alpha = s.alpha * twinkle;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-
           if (s.hue !== '0') {
-            ctx.fillStyle = `hsla(${s.hue}, ${s.saturation}, 80%, ${alpha})`;
+            ctx.fillStyle = 'hsla(' + s.hue + ', ' + s.sat + ', 80%, ' + alpha + ')';
           } else {
-            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
           }
           ctx.fill();
 
-          // glow on brighter stars
-          if (s.size > 1.5 && twinkle > 0.7) {
+          if (s.size > 1.3 && twinkle > 0.7) {
             ctx.beginPath();
             ctx.arc(s.x, s.y, s.size * 2.5, 0, Math.PI * 2);
             ctx.fillStyle = s.hue !== '0'
-              ? `hsla(${s.hue}, ${s.saturation}, 80%, ${alpha * 0.06})`
-              : `rgba(255, 255, 255, ${alpha * 0.04})`;
+              ? 'hsla(' + s.hue + ', ' + s.sat + ', 80%, ' + (alpha * 0.04) + ')'
+              : 'rgba(255, 255, 255, ' + (alpha * 0.03) + ')';
             ctx.fill();
           }
+        }
+
+        // Draw particles
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+          if (p.y < -10) p.y = h + 10;
+          if (p.y > h + 10) p.y = -10;
+
+          const pulse = 0.5 + 0.5 * Math.sin(time * 0.002 + p.pulse);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 212, 255, ' + (p.alpha * pulse) + ')';
+          ctx.fill();
         }
 
         requestAnimationFrame(draw);
@@ -1613,8 +1935,24 @@
     })();
 
     /* ═══════════════════════════════════════════
-       FIREBASE
+       PASSWORD TOGGLE
        ═══════════════════════════════════════════ */
+
+    document.getElementById('togglePw').addEventListener('click', function() {
+      const pw = document.getElementById('password');
+      const isVisible = pw.type === 'text';
+      pw.type = isVisible ? 'password' : 'text';
+      this.classList.toggle('visible');
+    });
+
+    /* ═══════════════════════════════════════════
+       GAUGE ANIMATION
+       ═══════════════════════════════════════════ */
+
+    /* ═══════════════════════════════════════════
+       FIREBASE CONFIG
+       ═══════════════════════════════════════════ */
+
     const firebaseConfig = {
       apiKey: "AIzaSyB_lsKdY8yZYwXD-XTNV6b5kKIeOgP4x24",
       authDomain: "esp32-relay-control-01-b96b1.firebaseapp.com",
@@ -1633,14 +1971,21 @@
     /* ═══════════════════════════════════════════
        LOGIN
        ═══════════════════════════════════════════ */
-    const loginPage = document.getElementById('loginPage');
+
+    const loginView = document.getElementById('loginView');
     const dashboard = document.getElementById('dashboard');
     const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
 
-    loginBtn.addEventListener('click', () => {
+    loginBtn.addEventListener('click', function() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const termsAccepted = document.getElementById('termsCheck').checked;
+      if (!termsAccepted) {
+        loginError.textContent = 'Please accept the Terms and Conditions.';
+        loginError.classList.add('show');
+        return;
+      }
       if (!email || !password) {
         loginError.textContent = 'Please enter email and password.';
         loginError.classList.add('show');
@@ -1652,25 +1997,28 @@
         return;
       }
       firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() => {
-          loginPage.style.display = 'none';
+        .then(function() {
+          loginView.classList.add('hidden');
           dashboard.style.display = 'block';
           dashboard.classList.add('dashboard-visible');
           initDashboard();
         })
-        .catch(error => {
+        .catch(function(error) {
           loginError.textContent = 'Connection failed: ' + error.message;
           loginError.classList.add('show');
         });
     });
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && loginPage.style.display !== 'none') loginBtn.click();
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !loginView.classList.contains('hidden')) {
+        loginBtn.click();
+      }
     });
 
     /* ═══════════════════════════════════════════
        DASHBOARD
        ═══════════════════════════════════════════ */
+
     function formatTime() {
       return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
@@ -1688,12 +2036,94 @@
       return parseFloat(((hi + T) / 2).toFixed(1));
     }
 
-    /* ─── Charts ─── */
-    function drawChart(canvasId, data, color) {
+    /* Smooth Bezier Chart */
+    /* Sparkline Drawing */
+    function drawSparkline(canvasId, data, color) {
       const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
       const dpr = window.devicePixelRatio || 1;
-      const W = canvas.parentElement.clientWidth - 44;
-      const H = 190;
+      const W = 200;
+      const H = 24;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = '100px';
+      canvas.style.height = '24px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      ctx.clearRect(0, 0, W, H);
+
+      if (!data || data.length < 2) return;
+
+      const min = Math.min(...data);
+      const max = Math.max(...data);
+      const range = (max - min) || 1;
+      const pad = 4;
+      const cw = W - pad * 2;
+      const ch = H - pad * 2;
+
+      const pts = data.map(function(v, i) {
+        return {
+          x: pad + (cw / (data.length - 1)) * i,
+          y: pad + ch - ((v - min) / range) * ch
+        };
+      });
+
+      function getBezier(points) {
+        const res = [];
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i === 0 ? 0 : i - 1];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const p3 = points[i + 2 >= points.length ? points.length - 1 : i + 2];
+          res.push({
+            cp1x: p1.x + (p2.x - p0.x) / 6, cp1y: p1.y + (p2.y - p0.y) / 6,
+            cp2x: p2.x - (p3.x - p1.x) / 6, cp2y: p2.y - (p3.y - p1.y) / 6,
+            toX: p2.x, toY: p2.y
+          });
+        }
+        return res;
+      }
+
+      const smooth = getBezier(pts);
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, pad, 0, pad + ch);
+      grad.addColorStop(0, color === '#f59e0b' ? 'rgba(245,158,11,0.15)' : 'rgba(0,212,255,0.12)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pad + ch);
+      smooth.forEach(function(s) { ctx.bezierCurveTo(s.cp1x, s.cp1y, s.cp2x, s.cp2y, s.toX, s.toY); });
+      ctx.lineTo(pts[pts.length - 1].x, pad + ch);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Stroke
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      smooth.forEach(function(s) { ctx.bezierCurveTo(s.cp1x, s.cp1y, s.cp2x, s.cp2y, s.toX, s.toY); });
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Last dot
+      var last = pts[pts.length - 1];
+      ctx.beginPath();
+      ctx.arc(last.x, last.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    /* Dual Line Chart */
+    function drawDualChart(tempData, humData) {
+      const canvas = document.getElementById('dualChart');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const W = rect.width;
+      const H = 180;
       canvas.width = W * dpr;
       canvas.height = H * dpr;
       canvas.style.width = W + 'px';
@@ -1701,151 +2131,119 @@
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      const pad = { top: 24, bottom: 22, left: 32, right: 16 };
+      ctx.clearRect(0, 0, W, H);
+
+      const pad = { top: 16, bottom: 16, left: 28, right: 12 };
       const cw = W - pad.left - pad.right;
       const ch = H - pad.top - pad.bottom;
 
-      ctx.clearRect(0, 0, W, H);
+      function drawLine(data, color, dashed) {
+        if (!data || data.length < 2) return;
+        const min = Math.min(...data);
+        const max = Math.max(...data);
+        const range = (max - min) || 1;
+        const pts = data.map(function(v, i) {
+          return {
+            x: pad.left + (cw / (data.length - 1)) * i,
+            y: pad.top + ch - ((v - min) / range) * ch
+          };
+        });
 
-      if (!data || data.length < 2) {
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
-        ctx.font = '12px DM Sans';
-        ctx.textAlign = 'center';
-        ctx.fillText('Awaiting data...', W / 2, H / 2 + 4);
-        return;
-      }
-
-      const min = Math.min(...data) - 2;
-      const max = Math.max(...data) + 2;
-      const range = max - min || 1;
-
-      // Grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const y = pad.top + (ch / 4) * i;
+        // Gradient fill
+        var grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+        grad.addColorStop(0, color === '#f59e0b' ? 'rgba(245,158,11,0.08)' : 'rgba(0,212,255,0.06)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.beginPath();
-        ctx.moveTo(pad.left, y);
-        ctx.lineTo(W - pad.right, y);
-        ctx.stroke();
-      }
-
-      const points = data.map((v, i) => ({
-        x: pad.left + (cw / (data.length - 1)) * i,
-        y: pad.top + ch - ((v - min) / range) * ch
-      }));
-
-      // Glow layer
-      ctx.save();
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      ctx.lineJoin = 'round';
-      ctx.globalAlpha = 0.3;
-      ctx.stroke();
-      ctx.restore();
-
-      // Gradient fill
-      const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-      const c = color === '#f59e0b'
-        ? 'rgba(245,158,11,0.12)' : 'rgba(0,212,255,0.10)';
-      const c2 = color === '#f59e0b'
-        ? 'rgba(245,158,11,0.02)' : 'rgba(0,212,255,0.02)';
-      grad.addColorStop(0, c);
-      grad.addColorStop(0.5, c2);
-      grad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, pad.top + ch);
-      points.forEach(p => ctx.lineTo(p.x, p.y));
-      ctx.lineTo(points[points.length - 1].x, pad.top + ch);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // Stroke
-      ctx.beginPath();
-      points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-
-      // Dots - last point highlighted
-      points.forEach((p, i) => {
-        const isLast = i === points.length - 1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, isLast ? 4 : 2, 0, Math.PI * 2);
-        ctx.fillStyle = isLast ? '#fff' : color;
-        ctx.fill();
-        if (isLast) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-          ctx.fillStyle = color;
-          ctx.globalAlpha = 0.12;
-          ctx.fill();
-          ctx.globalAlpha = 1;
+        ctx.moveTo(pts[0].x, pad.top + ch);
+        for (var i = 0; i < pts.length - 1; i++) {
+          var p1 = pts[i];
+          var p2 = pts[i + 1];
+          var cpx = (p1.x + p2.x) / 2;
+          ctx.quadraticCurveTo(p1.x, p1.y, cpx, (p1.y + p2.y) / 2);
         }
-      });
+        ctx.lineTo(pts[pts.length - 1].x, pad.top + ch);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
 
-      // Y-axis
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.font = '8px DM Sans';
-      ctx.textAlign = 'right';
-      for (let i = 0; i <= 4; i++) {
-        const val = max - (range / 4) * i;
-        const y = pad.top + (ch / 4) * i;
-        ctx.fillText(val.toFixed(1), pad.left - 6, y + 3);
+        // Stroke
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (var i = 0; i < pts.length - 1; i++) {
+          var p1 = pts[i];
+          var p2 = pts[i + 1];
+          var cpx = (p1.x + p2.x) / 2;
+          ctx.quadraticCurveTo(p1.x, p1.y, cpx, (p1.y + p2.y) / 2);
+        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        if (dashed) ctx.setLineDash([4, 4]);
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Last dot
+        var last = pts[pts.length - 1];
+        ctx.beginPath();
+        ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Last value label
+        ctx.fillStyle = color;
+        ctx.font = 'bold 10px Manrope';
+        ctx.textAlign = 'left';
+        ctx.fillText(data[data.length - 1].toFixed(1), last.x + 8, last.y + 3);
       }
 
-      // X-axis
-      const labels = ['00', '06', '12', '18', '23'];
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      labels.forEach((l, i) => {
-        const x = pad.left + (cw / (labels.length - 1)) * i;
-        ctx.fillText(l + ':00', x, H - 4);
-      });
-
-      // Current value on last point
-      const last = points[points.length - 1];
-      const lastVal = data[data.length - 1];
-      ctx.fillStyle = color;
-      ctx.font = '10px DM Sans';
-      ctx.textAlign = 'center';
-      ctx.fillText(lastVal.toFixed(1), last.x, last.y - 10);
+      drawLine(tempData, '#f59e0b', false);
+      drawLine(humData, '#00d4ff', false);
     }
 
-    function initCharts() {
-      window._tempData = Array.from({ length: 24 }, (_, i) => {
-        const cycle = Math.sin((i / 24) * Math.PI * 2) * 4;
-        return parseFloat((26 + cycle + (Math.random() - 0.5) * 1.5).toFixed(1));
-      });
-      window._humData = Array.from({ length: 24 }, (_, i) => {
-        const cycle = Math.sin((i / 24) * Math.PI * 2) * 8;
-        return parseFloat((62 + cycle + (Math.random() - 0.5) * 4).toFixed(1));
-      });
-      drawChart('tempChart', window._tempData, '#f59e0b');
-      drawChart('humChart', window._humData, '#00d4ff');
+    /* Gauge Update */
+    function updateGauge(elementId, value, min, max, cssClass) {
+      const circle = document.getElementById(elementId);
+      if (!circle) return;
+      const r = 50;
+      const circumference = 2 * Math.PI * r;
+      const clamped = Math.max(min, Math.min(max, value));
+      const fraction = (clamped - min) / (max - min);
+      const offset = circumference * (1 - fraction);
+      circle.style.strokeDasharray = circumference;
+      circle.style.strokeDashoffset = offset;
+      if (cssClass) circle.classList.add(cssClass);
     }
 
-    /* ─── Init ─── */
-    let db;
+    /* Init */
+    var db;
 
     function initDashboard() {
       db = firebase.database();
-      initCharts();
-      updateSyncTime();
-      setInterval(updateSyncTime, 5000);
 
-      setTimeout(() => {
-        document.getElementById('espStatus').textContent = 'Connected';
-        document.getElementById('wifiStatus').textContent = '-54 dBm';
-      }, 1200);
 
-      const relays = [
+      // Sparkline seed data
+      var tempHist = [];
+      var humHist = [];
+      for (var i = 0; i < 20; i++) {
+        tempHist.push(24 + Math.sin(i * 0.5) * 3 + (Math.random() - 0.5) * 1);
+        humHist.push(60 + Math.sin(i * 0.4) * 8 + (Math.random() - 0.5) * 4);
+      }
+      drawSparkline('tempSparkline', tempHist, '#f59e0b');
+      drawSparkline('humSparkline', humHist, '#00d4ff');
+
+      // Dual chart seed data
+      var tempHistDual = tempHist.slice();
+      var humHistDual = humHist.slice();
+      drawDualChart(tempHistDual, humHistDual);
+
+      // Animate gauges on load
+      setTimeout(function() { updateGauge('tempGaugeFill', 24.5, 0, 50, 'amber-fill'); }, 400);
+      setTimeout(function() { updateGauge('humGaugeFill', 62, 0, 100, 'cyan-fill'); }, 600);
+
+      // System status updates
+
+
+      var relays = [
         { id: 1, path: 'relay1', name: 'Relay 1 (AC Unit)' },
         { id: 2, path: 'relay2', name: 'Relay 2 (Fan)' },
       ];
@@ -1856,22 +2254,24 @@
       const rippleContainer = document.getElementById('rippleContainer');
 
       function updateRelayUI() {
-        Promise.all(relays.map(r => db.ref('/' + r.path).get().then(s => s.val()))).then(states => {
-          const anyOn = states.some(s => s === true);
+        Promise.all(relays.map(function(r) { return db.ref('/' + r.path).get().then(function(s) { return s.val(); }); })).then(function(states) {
+          const anyOn = states.some(function(s) { return s === true; });
           powerWrap.className = 'power-btn-wrap ' + (anyOn ? 'on' : 'off');
           powerStatusText.className = 'power-status-text ' + (anyOn ? 'on' : 'off');
           powerStatusText.textContent = anyOn ? 'System Active' : 'System Off';
-          document.getElementById('relayHealth').textContent = anyOn ? 'Active' : 'Standby';
-          document.getElementById('relayDot').className = 'dot ' + (anyOn ? 'green pulse' : 'amber');
-
+          document.getElementById('powerStatus').textContent = anyOn ? 'On' : 'Off';
+          document.getElementById('operatingMode').textContent = anyOn ? 'Cooling' : 'Standby';
+          document.getElementById('acBadge').textContent = anyOn ? 'Active' : 'Standby';
+          document.getElementById('acBadge').className = 'widget-badge ' + (anyOn ? 'gold' : 'amber');
+          document.getElementById('compressorStatus').textContent = anyOn ? 'Running' : 'Idle';
         });
       }
 
-      relays.forEach(relay => {
-        db.ref('/' + relay.path).on('value', () => updateRelayUI());
+      relays.forEach(function(relay) {
+        db.ref('/' + relay.path).on('value', function() { updateRelayUI(); });
       });
 
-      powerBtn.addEventListener('click', (e) => {
+      powerBtn.addEventListener('click', function(e) {
         const rect = powerBtn.getBoundingClientRect();
         const isCurrentlyOn = powerWrap.classList.contains('on');
         const ripple = document.createElement('div');
@@ -1883,35 +2283,54 @@
         ripple.style.left = x + 'px';
         ripple.style.top = y + 'px';
         rippleContainer.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 700);
+        setTimeout(function() { ripple.remove(); }, 700);
 
-        db.ref('/relay1').get().then(snap => {
+        db.ref('/relay1').get().then(function(snap) {
           const newState = !snap.val();
-          relays.forEach(r => db.ref('/' + r.path).set(newState));
+          relays.forEach(function(r) { db.ref('/' + r.path).set(newState); });
         });
       });
 
       function flashElement(id) {
         const el = document.getElementById(id);
+        if (!el) return;
         el.classList.remove('flash-update');
         void el.offsetWidth;
         el.classList.add('flash-update');
       }
 
-      db.ref('/temperature').on('value', snap => {
+      db.ref('/temperature').on('value', function(snap) {
         const val = snap.val();
-        document.getElementById('tempValue').textContent =
-          (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        var displayVal = (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        document.getElementById('tempValue').textContent = displayVal;
         document.getElementById('tempUpdated').textContent = formatTime();
+        if (val !== null && val !== undefined) {
+          updateGauge('tempGaugeFill', parseFloat(val), 0, 50, 'amber-fill');
+          tempHist.push(parseFloat(val));
+          if (tempHist.length > 20) tempHist.shift();
+          drawSparkline('tempSparkline', tempHist, '#f59e0b');
+          tempHistDual.push(parseFloat(val));
+          if (tempHistDual.length > 40) tempHistDual.shift();
+          drawDualChart(tempHistDual, humHistDual);
+        }
         updateDerivedSensors(val, null);
         flashElement('tempValue');
       });
 
-      db.ref('/humidity').on('value', snap => {
+      db.ref('/humidity').on('value', function(snap) {
         const val = snap.val();
-        document.getElementById('humValue').textContent =
-          (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        var displayVal = (val === null || val === undefined) ? '--' : Number(val).toFixed(1);
+        document.getElementById('humValue').textContent = displayVal;
         document.getElementById('humUpdated').textContent = formatTime();
+        if (val !== null && val !== undefined) {
+          updateGauge('humGaugeFill', parseFloat(val), 0, 100, 'cyan-fill');
+          humHist.push(parseFloat(val));
+          if (humHist.length > 20) humHist.shift();
+          drawSparkline('humSparkline', humHist, '#00d4ff');
+          humHistDual.push(parseFloat(val));
+          if (humHistDual.length > 40) humHistDual.shift();
+          drawDualChart(tempHistDual, humHistDual);
+        }
         updateDerivedSensors(null, val);
         flashElement('humValue');
       });
@@ -1920,39 +2339,37 @@
         const t = temp !== null ? temp : parseFloat(document.getElementById('tempValue').textContent) || null;
         const h = hum !== null ? hum : parseFloat(document.getElementById('humValue').textContent) || null;
         if (t !== null && h !== null && !isNaN(t) && !isNaN(h)) {
-          document.getElementById('heatIndexValue').textContent = computeHeatIndex(t, h) ?? '--';
-          document.getElementById('feelsLikeValue').textContent = computeFeelsLike(t, h) ?? '--';
+          const hi = computeHeatIndex(t, h);
+          const fl = computeFeelsLike(t, h);
+          document.getElementById('heatIndexValue').textContent = hi !== null ? hi + '\u00b0C' : '--';
+          document.getElementById('feelsLikeValue').textContent = fl !== null ? fl + '\u00b0C' : '--';
+
+          // Dew point approximation
+          var dew = parseFloat((h / 100) * (110 - t) - 110).toFixed(1);
+          document.getElementById('dewPoint').textContent = dew + '\u00b0C';
+
+          // Comfort level
+          var comfort = (t >= 20 && t <= 26 && h >= 40 && h <= 70) ? 'Comfortable' :
+            (t > 26 || h > 70) ? 'Warm' : 'Cool';
+          document.getElementById('comfortLevel').textContent = comfort;
+
           flashElement('heatIndexValue');
           flashElement('feelsLikeValue');
         }
       }
 
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        firebase.auth().signOut().then(() => {
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        firebase.auth().signOut().then(function() {
           dashboard.style.display = 'none';
           dashboard.classList.remove('dashboard-visible');
-          loginPage.style.display = 'flex';
+          loginView.classList.remove('hidden');
         });
       });
 
       updateRelayUI();
     }
 
-    function updateSyncTime() {
-      document.getElementById('syncTime').textContent = formatTime();
-    }
 
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        if (window._tempData && window._humData) {
-          drawChart('tempChart', window._tempData, '#f59e0b');
-          drawChart('humChart', window._humData, '#00d4ff');
-        }
-      }, 300);
-    });
   </script>
 </body>
-
 </html>
